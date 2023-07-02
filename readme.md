@@ -1,8 +1,6 @@
 # Blender probes
 
-Blender probes is blender plugin allowing to precompute reflectance and indirect luminance from blender and export data for use in external engine. It is based on blender probes object (reflection cubemap and irradiance grid) which has been design for blender eevee internal engine which not allow exporting baked data.
-
-The goal is to have a complete which export data using only blender internal API only in order to make it as multiplatform as blender.
+Blender probes is blender plugin allowing to precompute reflectance, indirect luminance from blender and export data for use in external engine. It is based on blender probes object (reflection cubemap and irradiance grid) which has been design for blender eevee internal engine but not allowing baked data export.
 
 ## License
 
@@ -31,22 +29,22 @@ SOFTWARE.
 
 ### Rendering
 
-Rendering phase Use blender cycle renderer to render scene static object in for reflectance cubemaps and panomic for reach Irradiance Grid cell, final result is a png (HDR not supported yet) for blender integration simplicity  
+Rendering phase Use blender cycle renderer to render scene static object in reflectance cubemaps and panomic equi rectangle for each Irradiance Grid cell, final result is a png (HDR not supported yet) images for each probe
 
 ### Compute and Packing
 
-Cumpute phase (In development) load renderered image into blender and use internal blender openGL to compute irradiance, create reflectance level and pack in textures sheet for fast integration
+Cumpute phase (In development) load renderered image into blender and use internal blender openGL API to compute irradiance, create reflectance level and pack final data in textures sheet for fast integration
 
 (TBD)
 ### Scene probes data
 
-Scene probes data are exported as JSON and pack all probes attributes and theire data texture
+Scene probes data are exported as JSON and includes all probes attributes and a link to data texture
 
 (TBD)
 
 ### Progress
 
-This plugin is only in its development phase, here is the list of milestones ordered by priority 
+This plugin is in its development phase, here is the list of milestones ordered by priority 
 
 - [X] Irradiance probe render operator
 - [X] Reflectance probe render operator
@@ -57,6 +55,3 @@ This plugin is only in its development phase, here is the list of milestones ord
 - [ ] Blender headless python command
 - [ ] HDR Support
 
-### Infos
-
-If this plugin could be a good use for you preject please PM as it is more a first experiment for a ThreeJS light probe integrations
