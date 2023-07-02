@@ -1,0 +1,8 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/gillesboisson/sdk/blender_auto_complete_3.4"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/gillesboisson/sdk/blender_auto_complete_3.4"
+    ]
+}
