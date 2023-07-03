@@ -1,11 +1,12 @@
 
 from bpy.utils import register_class, unregister_class
 
-from .export_probe import ExportProbe
+from .export_probe import ExportProbe, ExportProbes
 from .set_probes_export_directory import SetProbeExportDirectory
 
 classes = (
     ExportProbe,
+    ExportProbes,
     SetProbeExportDirectory
 )
 

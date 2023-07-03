@@ -1,6 +1,5 @@
 import bpy
 
-from ..utils import is_exportabled_light_probe
 
 class SceneSettingsPanel(bpy.types.Panel):
 
@@ -44,6 +43,10 @@ class SceneSettingsPanel(bpy.types.Panel):
         row = layout.column()
         row.prop(prop, 'irradiance_volume_default_map_size')
         row.prop(prop, 'irradiance_volume_default_samples_max')
+
+        layout.separator(factor=2)
+        row = layout.column()
+        row.operator('probes.export', icon='EXPORT')
 
 
         

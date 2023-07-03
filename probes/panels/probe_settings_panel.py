@@ -1,6 +1,6 @@
 import bpy
 
-from ..utils import is_exportabled_light_probe
+from ..helpers.poll import is_exportabled_light_probe
 
 
 class ProbeSettingsPanel(bpy.types.Panel):
