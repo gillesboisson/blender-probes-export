@@ -5,15 +5,15 @@ from bpy.types import Operator
 import json
 from ..helpers.poll import is_exportabled_light_probe
 
-from ..helpers.render import render_cubemap_reflection_probe, render_pano_irradiance_probe
+from ..helpers.render import render_pano_reflection_probe, render_pano_irradiance_probe
 
 
 
 
 
 class BaseExportProbe(Operator):    
-    def execute_cubemap(self, context, object, progress_min = 0, progress_max = 1):
-        return render_cubemap_reflection_probe(context, self, object, progress_min, progress_max)
+    def execute_reflection(self, context, object, progress_min = 0, progress_max = 1):
+        return render_pano_reflection_probe(context, self, object, progress_min, progress_max)
     
 
     def execute_grid(self, context, object, progress_min = 0, progress_max = 1):
@@ -36,7 +36,7 @@ class ExportProbe(BaseExportProbe):
     def execute(self, context):
         
         if(context.object.data.type == 'CUBEMAP'):
-            self.execute_cubemap(context, context.object)
+            self.execute_reflection(context, context.object)
         elif(context.object.data.type == 'GRID'):
             self.execute_grid(context, context.object)
         
@@ -67,7 +67,7 @@ class ExportProbes(BaseExportProbe):
 
         for object in probes:
             if(object.data.type == 'CUBEMAP'):
-                render_data.append(self.execute_cubemap(context, object , progress_min, progress_max))
+                render_data.append(self.execute_reflection(context, object , progress_min, progress_max))
             elif(object.data.type == 'GRID'):
                 render_data.append(self.execute_grid(context, object, progress_min, progress_max))
             progress_min += 1

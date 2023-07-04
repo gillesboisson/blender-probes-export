@@ -45,7 +45,17 @@ class ProbeSettingsPanel(bpy.types.Panel):
                 col.label(text = "Map size: " + str(scene_settings.reflection_cubemap_default_map_size))
                 col.label(text="Samples max: " + str(scene_settings.reflection_cubemap_default_samples_max))
                 col.label(text="Radiance levels: " + str(scene_settings.reflection_cubemap_default_radiance_levels))
-        
+
+
+            
 
         row = layout.row()
         row.operator('probe.export')
+
+        if data.type == 'GRID':
+            row = layout.row()
+            row.operator('probe.pack_irradiance') 
+        elif data.type == 'CUBEMAP' :
+            row = layout.row()
+            row.operator('probe.pack_relection')
+        

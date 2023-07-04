@@ -158,6 +158,8 @@ def render_cubemap_reflection_probe(context, operator, object, progress_min = 0,
 
             set_cube_render_settings(context, camera, final_file_path, samples_max = samples_max, size = height)
 
+            
+
             bpy.ops.render.render(write_still=True)
 
             result_data['faces_files'].append(filename)
