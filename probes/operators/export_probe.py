@@ -7,10 +7,6 @@ from ..helpers.poll import is_exportabled_light_probe
 
 from ..helpers.render import render_pano_reflection_probe, render_pano_irradiance_probe
 
-
-
-
-
 class BaseExportProbe(Operator):    
     def execute_reflection(self, context, object, progress_min = 0, progress_max = 1):
         return render_pano_reflection_probe(context, self, object, progress_min, progress_max)

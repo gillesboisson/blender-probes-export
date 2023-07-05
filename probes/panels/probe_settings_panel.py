@@ -1,12 +1,14 @@
 import bpy
+from bpy.types import Context
 
 from ..helpers.poll import is_exportabled_light_probe
+
 
 
 class ProbeSettingsPanel(bpy.types.Panel):
 
     bl_idname = 'VIEW3D_PT_probes_export_settings'
-    bl_label = 'Probes export settings'
+    bl_label = 'Export probe'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = "data"
@@ -14,6 +16,11 @@ class ProbeSettingsPanel(bpy.types.Panel):
     @classmethod
     def poll(cls, context):
         return is_exportabled_light_probe(context)
+    
+    def draw_header(self, context: Context):
+        data = context.object.data
+        prop = data.probes_export
+        self.layout.prop(prop, 'enable_export', text='')
 
     def draw(self, context):
         data = context.object.data
@@ -22,40 +29,66 @@ class ProbeSettingsPanel(bpy.types.Panel):
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
+        
         row = layout.row()
 
         scene_settings = context.scene.probes_export
 
-        row.prop(prop, 'enable_export')
+        master_row = layout.column()
+        master_row.active = prop.enable_export
 
-        if prop.enable_export:
-            row = layout.row()
-            row.prop(prop, 'use_default_settings')
+        row = master_row.row(align=True)
+        col = row.column()
+        col.operator('probe.export')
+        col = row.column()
+        if data.type == 'GRID':
+            col.operator('probe.pack_irradiance') 
+        elif data.type == 'CUBEMAP' :
+            col.operator('probe.pack_relection')
 
-            if not prop.use_default_settings:
-                row = layout.row()
-                row.prop(prop, 'map_size')
-                row = layout.row()
-                row.prop(prop, 'samples_max')
-                row = layout.row()
-                row.prop(prop, 'radiance_levels')
-            else:
+        row = master_row.row()
+        row.prop(prop, 'use_default_settings')    
+
+        master_row = layout.column()
+        master_row.active = prop.enable_export and not prop.use_default_settings
+
+        # if not prop.use_default_settings:
+        col = master_row.column()
+        col.prop(prop, 'map_size')
+        col.prop(prop, 'samples_max')
+
+        col.separator(factor=2)
+        col.prop(prop, 'export_map_size')
+        col.prop(prop, 'export_max_texture_size')
+
+        if data.type == 'CUBEMAP':
+            col = master_row.column()
+            
+            col.prop(prop, 'export_nb_levels')
+            col.prop(prop, 'export_start_roughness')
+            col.prop(prop, 'export_level_roughness')
+
                 
-                col = layout.column()
-                col.label(text = "Map size: " + str(scene_settings.reflection_cubemap_default_map_size))
-                col.label(text="Samples max: " + str(scene_settings.reflection_cubemap_default_samples_max))
-                col.label(text="Radiance levels: " + str(scene_settings.reflection_cubemap_default_radiance_levels))
+
+        # else:
+            
+        #     col = master_col.column()
+        #     if data.type == 'CUBEMAP':
+            
+        #         col.label(text="Map size: " + str(scene_settings.reflection_cubemap_default_map_size))
+        #         col.label(text="Samples max: " + str(scene_settings.reflection_cubemap_default_samples_max))
+        #         col.label(text="Cubemap face size: " + str(scene_settings.reflection_volume_default_export_map_size))
+        #         col.label(text="Max final texture size: " + str(scene_settings.reflection_volume_default_export_max_texture_size))
+        #         col.label(text="Irradiance levels amount: " + str(scene_settings.reflection_volume_default_export_nb_levels))
+        #         col.label(text="Start roughness: " + str(scene_settings.reflection_volume_default_export_start_roughness))
+        #         col.label(text="Roughness step: " + str(scene_settings.reflection_volume_default_export_level_roughness))
+        #     elif data.type == 'GRID':
+        #         col.label(text="Map size: " + str(scene_settings.irradiance_volume_default_render_map_size))
+        #         col.label(text="Samples max: " + str(scene_settings.irradiance_volume_default_samples_max))
+        #         col.label(text="Cubemap Map size: " + str(scene_settings.irradiance_volume_default_export_max_texture_size))
 
 
             
 
-        row = layout.row()
-        row.operator('probe.export')
 
-        if data.type == 'GRID':
-            row = layout.row()
-            row.operator('probe.pack_irradiance') 
-        elif data.type == 'CUBEMAP' :
-            row = layout.row()
-            row.operator('probe.pack_relection')
         

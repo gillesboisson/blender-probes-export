@@ -12,7 +12,12 @@ class ProbeExportSettings(bpy.types.PropertyGroup):
     map_size: IntProperty(name="Map size", default=256)
     samples_max: IntProperty(name="Samples max", default=32)
 
-    radiance_levels: IntProperty(name="Radiance levels", default=4)
+    export_map_size: IntProperty(name="Cubemap face size", default=128)
+    export_max_texture_size: IntProperty(name="Max final texture size", default=2048)
+    export_nb_levels: IntProperty(name="Irradiance levels amount", default=1,  min=1, max=4)
+    export_start_roughness: FloatProperty(name="Start roughness", default=0.25, min=0.0, max=1.0)
+    export_level_roughness: FloatProperty(name="Roughness step", description="Roughness step increase in each level", default=0.25 , min=0.1, max=1.0)
+    
 
    
 classes = (
