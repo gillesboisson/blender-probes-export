@@ -7,7 +7,9 @@ from ..helpers.poll import is_exportabled_light_probe
 
 from ..helpers.render import render_pano_reflection_probe, render_pano_irradiance_probe
 
-class BaseExportProbe(Operator):    
+from ..helpers.files import clear_render_cache_subdirectory, render_cache_subdirectory_exists
+
+class BaseRenderProbe(Operator):    
     def execute_reflection(self, context, object, progress_min = 0, progress_max = 1):
         return render_pano_reflection_probe(context, self, object, progress_min, progress_max)
     
@@ -16,16 +18,15 @@ class BaseExportProbe(Operator):
         return render_pano_irradiance_probe(context, self, object, progress_min, progress_max)
 
 
-class ExportProbe(BaseExportProbe):
-    bl_idname = "probe.export"
-    bl_label = "Export probe"
+class RenderProbe(BaseRenderProbe):
+    bl_idname = "probe.render"
+    bl_label = "Render probe"
     bl_description = ""
     bl_options = {"REGISTER"}
 
     @classmethod
     def poll(cls, context):
-
-        return is_exportabled_light_probe(context)
+        return is_exportabled_light_probe(context) 
 
 
 
@@ -39,14 +40,31 @@ class ExportProbe(BaseExportProbe):
 
         return {"FINISHED"}
 
-
-class ExportProbes(BaseExportProbe):
-    bl_idname = "probes.export"
-    bl_label = "Export all probe"
+class ClearRenderProbeCache(Operator):
+    bl_idname = "probe.clear_cache"
+    bl_label = "Clear probe cache"
     bl_description = ""
     bl_options = {"REGISTER"}
 
+    @classmethod
+    def poll(cls, context):
+        return is_exportabled_light_probe(context) and render_cache_subdirectory_exists(
+            context.scene.probes_export.export_directory_path,
+            context.object.name
+        )
 
+    def execute(self, context):
+        clear_render_cache_subdirectory(
+            context.scene.probes_export.export_directory_path, 
+            context.object.name
+        )
+        return {"FINISHED"}
+
+class RenderProbes(BaseRenderProbe):
+    bl_idname = "probes.export"
+    bl_label = "Render all probe"
+    bl_description = ""
+    bl_options = {"REGISTER"}
 
 
     def execute(self, context):

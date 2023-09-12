@@ -5,7 +5,7 @@ from bpy.utils import register_class, unregister_class
 
 
 
-class ProbeExportSettings(bpy.types.PropertyGroup):
+class ProbeExportSettingsProps(bpy.types.PropertyGroup):
     enable_export: BoolProperty(name="Enable", default=True)
     use_default_settings: BoolProperty(name="Use default settings", default=True)
     
@@ -21,7 +21,7 @@ class ProbeExportSettings(bpy.types.PropertyGroup):
 
    
 classes = (
-    ProbeExportSettings,
+    ProbeExportSettingsProps,
 )
 
 
@@ -29,7 +29,7 @@ def register_probes_settings():
     for cls in classes:
         register_class(cls)
     
-    bpy.types.LightProbe.probes_export = PointerProperty(type=ProbeExportSettings)
+    bpy.types.LightProbe.probes_export = PointerProperty(type=ProbeExportSettingsProps)
 def unregister_probes_settings():
     for cls in reversed(classes):
         unregister_class(cls)

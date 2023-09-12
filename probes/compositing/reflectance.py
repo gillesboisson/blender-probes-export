@@ -9,6 +9,8 @@ from gpu.types import *
 from .shader import *
 from .pack import *
 
+from ..helpers.files import get_render_cache_subdirectory
+
 def pack_reflectance_cubemap(
         map_texture_files,
         output_file_path,
@@ -88,18 +90,21 @@ def pack_reflectance_cubemap(
     
 
 def pack_reflectance_probe(
-        export_direction: str,
+        export_directory: str,
         data,
         cubemap_size,
         max_texture_size = 1024,
+        nb_levels = 3,
         start_roughness = 0.25,
         level_roughness = 0.25,
-        nb_levels = 3,
+        
     ):
 
+    final_export_directory = get_render_cache_subdirectory(export_directory, data['name'])
+
     pack_reflectance_cubemap(
-        [export_direction + data['file']],
-        export_direction + data['name'] + '_packed.png',
+        [final_export_directory + '/' + data['file']],
+        export_directory + data['name'] + '_packed.png',
         cubemap_size,
         max_texture_size,
         start_roughness,

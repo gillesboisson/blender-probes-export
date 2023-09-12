@@ -8,7 +8,7 @@ from ..helpers.poll import is_exportabled_grid_light_probe, is_exportabled_refle
 from ..compositing.irradiance import pack_irradiance_probe
 from ..compositing.reflectance import pack_reflectance_probe
 
-from ..helpers.data import load_probe_data
+from ..helpers.files import load_probe_json_data, render_cache_subdirectory_exists
 
 
 class BasePackProbe(Operator):    
@@ -26,7 +26,10 @@ class PackIrradianceProbe(BasePackProbe):
 
     @classmethod
     def poll(cls, context):
-        return is_exportabled_grid_light_probe(context)
+        return is_exportabled_grid_light_probe(context) and render_cache_subdirectory_exists(
+            context.scene.probes_export.export_directory_path,
+            context.object.name
+        )
 
 
 
@@ -46,7 +49,7 @@ class PackIrradianceProbe(BasePackProbe):
             export_max_texture_size = settings.export_max_texture_size
 
 
-        data = load_probe_data(export_directory, context.object.name)
+        data = load_probe_json_data(export_directory, context.object.name)
 
         if(data == None):
             self.report({'ERROR'}, 'No data found for this probe')
@@ -65,13 +68,16 @@ class PackReflectionProbe(BasePackProbe):
 
     @classmethod
     def poll(cls, context):
-        return is_exportabled_reflection_light_probe(context)
+        return is_exportabled_reflection_light_probe(context) and render_cache_subdirectory_exists(
+            context.scene.probes_export.export_directory_path,
+            context.object.name
+        )
     
     def execute(self, context):
 
         export_directory = context.scene.probes_export.export_directory_path
         
-        prob_object = object
+        prob_object = context.object
         prob = prob_object.data
         settings = prob.probes_export
         
@@ -90,7 +96,7 @@ class PackReflectionProbe(BasePackProbe):
             export_level_roughness = settings.export_level_roughness
         
 
-        data = load_probe_data(export_directory, context.object.name)
+        data = load_probe_json_data(export_directory, context.object.name)
 
         if(data == None):
             self.report({'ERROR'}, 'No data found for this probe')

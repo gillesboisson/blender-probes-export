@@ -1,76 +1,82 @@
 
 
+import json
+import shutil
 from .config import cube_map_face_names, cube_map_euler_rotations
 import os
 
+render_cache_dirname = '__render_cache'
 
-def cubemap_file(face_index, name, extension = 'png'):
-    return name + '_' + cube_map_face_names[face_index] + '.' + extension
+def get_render_cache_directory(export_directory):
+    return export_directory + '/' + render_cache_dirname
 
-
-def cubemap_files(name, extension = 'png'):
-    return [cubemap_file(i, name, extension) for i in range(6)]
-
-
-def pano_file(name, extension = 'png'):
-    return name + '.' + extension
-
-
-def irradiance_file(name,index_x, index_y, index_z,  extension = 'png'):
-    return name + '_' + str(index_x) + '_' + str(index_y) + '_' + str(index_z) + '.' + extension
+def get_or_create_render_cache_directory(export_directory):
+    cache_dir = get_render_cache_directory(export_directory)
+    if not os.path.exists(cache_dir):
+        os.makedirs(cache_dir)
+    return cache_dir
 
 
+def get_render_cache_subdirectory(export_directory, name):
+    return get_render_cache_directory(export_directory) + '/' + name
 
-def cubemap_file_exist(directory, face_index, name, extension = 'png'):
-    filename = cubemap_file(face_index, name, extension)
-    return os.path.exists(directory + '/' + filename)
+def get_or_create_render_cache_subdirectory(export_directory, name):
+    object_dir = get_render_cache_subdirectory(export_directory, name)
+    if not os.path.exists(object_dir):
+        os.makedirs(object_dir)
+    return object_dir
 
-def all_cubemap_files_exist(directory, name, extension = 'png'):
-    for i in range(6):
-        if not cubemap_file_exist(directory, i, name, extension):
-            return False
-    return True
 
-def irradiance_file_exist(directory, name,index_x, index_y, index_z,  extension = 'png'):
-    filename = irradiance_file(name,index_x, index_y, index_z,  extension)
-    return os.path.exists(directory + '/' + filename)
+def clear_render_cache_directory(export_directory):
+    cache_dir = get_render_cache_directory(export_directory)
+    if os.path.exists(cache_dir):
+        shutil.rmtree(cache_dir)
 
-def all_irradiance_files_exist(directory, name, resolution_x, resolution_y, resolution_z, extension = 'png'):
-    for i in range(resolution_x):
-        for j in range(resolution_y):
-            for k in range(resolution_z):
-                if not irradiance_file_exist(directory, name,i, j, k, extension):
-                    return False
-    return True
+def clear_render_cache_subdirectory(export_directory, name):
+    object_dir = get_render_cache_subdirectory(export_directory, name)
+    if os.path.exists(object_dir):
+        shutil.rmtree(object_dir)
 
-def pano_file_exist(directory, name, extension = 'png'):
-    filename = pano_file(name, extension)
-    return os.path.exists(directory + '/' + filename)
+def render_cache_subdirectory_exists(export_directory, name):
+    object_dir = get_render_cache_subdirectory(export_directory, name)
+    return os.path.exists(object_dir)        
+
+def cubemap_filename(face_index, extension = 'png'):
+    return cube_map_face_names[face_index] + '.' + extension
 
 
 
-def unlink_cubemap_files(name, extension = 'png'):
-    for i in range(6):
-        try:
-            os.unlink(cubemap_file(i, name, extension))
-        except:
-            pass
+def cubemap_files(export_directory, name, extension = 'png'):
+    dir = get_render_cache_subdirectory(export_directory, name)
+    return [dir + '/' + cubemap_filename(i, extension) for i in range(6)]
 
 
+def pano_filename( extension = 'png'):
+    return 'pano.' + extension
 
-def unlink_irradiance_files(name, resolution_x, resolution_y, resolution_z, extension = 'png'):
-    for i in range(resolution_x):
-        for j in range(resolution_y):
-            for k in range(resolution_z):
-                try:
-                    os.unlink(irradiance_file(name,i, j, k, extension))
-                except:
-                    pass
-    
-def unlink_pano_file(name, extension = 'png'):
-    try:
-        os.unlink(pano_file(name, extension))
-    except:
-        pass
+def pano_file(export_directory, name, extension = 'png'):
+    dir = get_render_cache_subdirectory(export_directory, name)
+    return dir + '/' + pano_filename(extension)
 
 
+def irradiance_filename(index_x, index_y, index_z,  extension = 'png'):
+    return str(index_x) + '_' + str(index_y) + '_' + str(index_z) + '.' + extension
+
+
+def irradiance_file(export_directory, name, index_x, index_y, index_z,  extension = 'png'):
+    dir = get_render_cache_subdirectory(export_directory, name)
+    return dir + '/' + irradiance_filename(index_x, index_y, index_z, extension)
+
+
+def save_probe_json_data(export_directory, name, data):
+    dir = get_render_cache_subdirectory(export_directory, name)
+    with open(dir + '/' + 'probe.json', 'w') as outfile:
+        json.dump(data, outfile, indent=4)
+
+
+def load_probe_json_data(export_directory, name):
+    dir = get_render_cache_subdirectory(export_directory, name)
+    if not os.path.exists(dir + '/' + 'probe.json'):
+        return None
+    with open(dir + '/' + 'probe.json') as json_file:
+        return json.load(json_file)

@@ -6,7 +6,7 @@ from bpy.utils import register_class, unregister_class
 
 
 
-class ProbeExportSceneSettings(bpy.types.PropertyGroup):
+class ProbeExportSceneSettingsProps(bpy.types.PropertyGroup):
     export_path: StringProperty(name="Data path", default="")
     export_directory_path: StringProperty(name="Render directory", default="")
 
@@ -33,7 +33,7 @@ class ProbeExportSceneSettings(bpy.types.PropertyGroup):
 # FileSelectEntry
    
 classes = (
-    ProbeExportSceneSettings,
+    ProbeExportSceneSettingsProps,
     # SetProbeExportDirectory
 )
 
@@ -41,7 +41,7 @@ classes = (
 def register_export_settings():
     for cls in classes:
         register_class(cls)
-    bpy.types.Scene.probes_export = PointerProperty(type=ProbeExportSceneSettings)
+    bpy.types.Scene.probes_export = PointerProperty(type=ProbeExportSceneSettingsProps)
 def unregister_export_settings():
     for cls in reversed(classes):
         unregister_class(cls)

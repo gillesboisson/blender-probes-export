@@ -8,6 +8,8 @@ from gpu.types import *
 from .shader import *
 from .pack import *
 
+from ..helpers.files import get_render_cache_subdirectory
+
 def pack_irradiance_cubemap(
         map_texture_files,
         output_file_path,
@@ -81,16 +83,16 @@ def pack_irradiance_cubemap(
     image.save_render(output_file_path)
 
 
-def pack_irradiance_probe(export_direction: str, data, cubemap_size, max_texture_size = 1024):
+def pack_irradiance_probe(export_directory: str, data, cubemap_size, max_texture_size = 1024):
 
     source_files_path = []
-
+    final_export_directory = get_render_cache_subdirectory(export_directory, data['name'])
     for file in data['files']:
-        source_files_path.append(export_direction  + file)
+        source_files_path.append(final_export_directory + '/' + file)
 
     pack_irradiance_cubemap(
         source_files_path,
-        export_direction + data['name'] + '_packed.png',
+        export_directory + data['name'] + '_packed.png',
         cubemap_size, 'irradiance_pack',
         max_texture_size,
     )
