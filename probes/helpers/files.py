@@ -69,6 +69,7 @@ def irradiance_file(export_directory, name, index_x, index_y, index_z,  extensio
 
 probe_render_json_file = 'rendered_probe.json'
 probe_pack_json_file = 'packed_probe.json'
+final_probes_json_file = 'probes.json'
 
 
 def save_probe_json_render_data(export_directory, name, data):
@@ -112,7 +113,7 @@ def save_scene_json_pack_data(export_directory, probe_names):
                     pack_data.append(data)
 
         if(len(pack_data) > 0):
-            with open(export_directory + '/' + probe_pack_json_file, 'w') as outfile:
+            with open(export_directory + '/' + final_probes_json_file, 'w') as outfile:
                 json.dump(pack_data, outfile, indent=4)
                     
 
