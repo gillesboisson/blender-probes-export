@@ -88,6 +88,7 @@ Rendered probes attributed are saved in a json file (probes.json) with a commmon
 ]
 ```
 
+
 ### Progress
 
 This plugin is in its development phase, here is the list of milestones ordered by priority 
@@ -98,6 +99,7 @@ This plugin is in its development phase, here is the list of milestones ordered 
 - [X] Complete scene Render operator
 - [X] Irradiance Cubemap packing
 - [X] Refletance Cubemap packing
+- [ ] SH irradiance packing
 - [ ] Asynchronous rendering + progress bar
 - [ ] Blender headless python command
 - [ ] Support of other data kind using blender bake system (eg. Ambiant occlusion)
