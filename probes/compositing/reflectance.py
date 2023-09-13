@@ -138,11 +138,13 @@ def pack_reflectance_probe_to_image(
     save_probe_json_pack_data(export_directory, data['name'], pack_data)
 
 
-def pack_reflectance_probe(context):
+def pack_reflectance_probe(context, prob_object = None):
 
         export_directory = context.scene.probes_export.export_directory_path
         
-        prob_object = context.object
+        if(prob_object == None):
+            prob_object = context.object
+        
         prob = prob_object.data
         settings = prob.probes_export
         
@@ -161,7 +163,7 @@ def pack_reflectance_probe(context):
             export_level_roughness = settings.export_level_roughness
         
 
-        data = load_probe_json_render_data(export_directory, context.object.name)
+        data = load_probe_json_render_data(export_directory, prob_object.name)
 
         if(data == None):
             return None

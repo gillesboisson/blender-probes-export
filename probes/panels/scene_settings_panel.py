@@ -89,13 +89,17 @@ class SceneSettingsPanel(bpy.types.Panel):
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
-        row = layout.row()
+        col = layout.row()
         # col = row.column_flow(columns=2, align=True)
-        row.prop(prop, 'export_directory_path')
-        row.operator('probes_export.set_export_directory', icon='FILE_FOLDER', text='') #.export_path = prop.export_path
+        col.prop(prop, 'export_directory_path')
+        col.operator('probes_export.set_export_directory', icon='FILE_FOLDER', text='') #.export_path = prop.export_path
         layout.separator(factor=2)
-        row = layout.column()
-        row.operator('probes.export', icon='EXPORT')
+        col = layout.column()
+        row = col.row(align=True)
+        scol = row.column()
+        scol.operator('probes.export', icon='EXPORT')
+        scol = row.column()
+        scol.operator('probes.clear_main_cache_directory', icon='TRASH') #.export_path = prop.export_path
         
 
 

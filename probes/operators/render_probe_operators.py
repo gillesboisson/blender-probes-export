@@ -10,16 +10,16 @@ from ..helpers.poll import is_exportable_light_probe
 
 from ..helpers.render import render_pano_reflection_probe, render_pano_irradiance_probe
 
-from ..helpers.files import clear_render_cache_subdirectory, render_cache_subdirectory_exists
+from ..helpers.files import clear_render_cache_subdirectory, render_cache_subdirectory_exists, clear_render_cache_directory
 
 class BaseRenderProbe(Operator):    
     def execute_reflection(self, context, object, progress_min = 0, progress_max = 1):
         render_pano_reflection_probe(context, self, object, progress_min, progress_max)
-        pack_reflectance_probe(context)
+        pack_reflectance_probe(context, object)
 
     def execute_grid(self, context, object, progress_min = 0, progress_max = 1):
         render_pano_irradiance_probe(context, self, object, progress_min, progress_max)
-        pack_irradiance_probe(context)  
+        pack_irradiance_probe(context, object)  
 
     
 class RenderProbe(BaseRenderProbe):
@@ -73,7 +73,6 @@ class RenderProbes(BaseRenderProbe):
 
     def execute(self, context):
         probes = []
-        render_data = []
         progress_min = 0
         progress_max = 0
 
@@ -85,10 +84,21 @@ class RenderProbes(BaseRenderProbe):
 
         for object in probes:
             if(object.data.type == 'CUBEMAP'):
-                render_data.append(self.execute_reflection(context, object , progress_min, progress_max))
+                self.execute_reflection(context, object , progress_min, progress_max)
+
             elif(object.data.type == 'GRID'):
-                render_data.append(self.execute_grid(context, object, progress_min, progress_max))
+                self.execute_grid(context, object, progress_min, progress_max)
             progress_min += 1
 
         return {"FINISHED"}
 
+class ClearProbeCacheDirectory(Operator):
+    bl_idname = "probes.clear_main_cache_directory"
+    bl_label = "Clear cache"
+    bl_description = ""
+    bl_options = {"REGISTER"}
+
+
+    def execute(self, context):
+        clear_render_cache_directory(context.scene.probes_export.export_directory_path)
+        return {"FINISHED"}

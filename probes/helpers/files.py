@@ -118,3 +118,7 @@ def save_scene_json_pack_data(export_directory, probe_names):
 
     # save json file in export directory
     
+def clear_render_cache_directory(export_directory):
+    cache_dir = get_render_cache_directory(export_directory)
+    if os.path.exists(cache_dir):
+        shutil.rmtree(cache_dir)

@@ -1,7 +1,7 @@
 
 from bpy.utils import register_class, unregister_class
 
-from .render_probe_operators import RenderProbe, RenderProbes, ClearRenderProbeCache
+from .render_probe_operators import RenderProbe, RenderProbes, ClearRenderProbeCache, ClearProbeCacheDirectory
 from .set_probes_export_directory import SetProbeExportDirectory
 
 from .pack_probes_operators import PackIrradianceProbe, PackReflectionProbe
@@ -13,6 +13,7 @@ classes = (
     PackIrradianceProbe,
     PackReflectionProbe,
     ClearRenderProbeCache,
+    ClearProbeCacheDirectory,
 )
 
 def register_operators():

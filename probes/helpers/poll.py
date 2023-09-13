@@ -17,6 +17,6 @@ def is_exportable_reflection_light_probe(context):
 def get_context_probes_names(context):
     names = []
     for object in bpy.data.objects:
-        if object.type == 'LIGHT_PROBE' and (context.object.data.type == 'CUBEMAP' or context.object.data.type == 'GRID'):
+        if object.type == 'LIGHT_PROBE' and (object.data.type == 'CUBEMAP' or object.data.type == 'GRID'):
             names.append(object.name)
     return names

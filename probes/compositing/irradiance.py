@@ -120,10 +120,12 @@ def pack_irradiance_probe_to_image(export_directory: str, data, cubemap_size, ma
     return
 
 
-def pack_irradiance_probe(context):
+def pack_irradiance_probe(context, prob_object = None):
     export_directory = context.scene.probes_export.export_directory_path
         
-    prob_object = context.object
+    if(prob_object == None):
+        prob_object = context.object
+
     prob = prob_object.data
     settings = prob.probes_export
 
@@ -135,7 +137,7 @@ def pack_irradiance_probe(context):
         export_max_texture_size = settings.export_max_texture_size
 
 
-    data = load_probe_json_render_data(export_directory, context.object.name)
+    data = load_probe_json_render_data(export_directory, prob_object.name)
 
     if(data == None):
         return None
