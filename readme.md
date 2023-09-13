@@ -10,122 +10,83 @@ Probe export is done in 2 phases
 
 Rendering phase Use blender cycle renderer to render scene static object in reflectance cubemaps and panomic equi rectangle for each Irradiance Grid cell, final result is a png (HDR not supported yet) images for each probe
 
-#### Data
-
-Rendered probes attributed are saved in a json file (probes.json) in order to pack it in a different phase
-
-**Irradiance Volume example**
-```json
-[
-    {
-        "type": "pano",
-        "resolution": [
-            4,
-            4,
-            2
-        ],
-        "world_mat": [
-            14.5,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            14.5,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            5.0,
-            5.0,
-            0.0,
-            0.0,
-            0.0,
-            1.0
-        ],
-        "falloff": 1.0,
-        "probe_type": "irradiance",
-        "name": "IrradianceVolume",
-        "width": 128,
-        "height": 64,
-        "files": [
-            "IrradianceVolume_0_0_0.png",
-            "IrradianceVolume_0_0_1.png",
-            "IrradianceVolume_0_1_0.png",
-            "IrradianceVolume_0_1_1.png",
-            "IrradianceVolume_0_2_0.png",
-            "IrradianceVolume_0_2_1.png",
-            "IrradianceVolume_0_3_0.png",
-            "IrradianceVolume_0_3_1.png",
-            "IrradianceVolume_1_0_0.png",
-            "IrradianceVolume_1_0_1.png",
-            "IrradianceVolume_1_1_0.png",
-            "IrradianceVolume_1_1_1.png",
-            "IrradianceVolume_1_2_0.png",
-            "IrradianceVolume_1_2_1.png",
-            "IrradianceVolume_1_3_0.png",
-            "IrradianceVolume_1_3_1.png",
-            "IrradianceVolume_2_0_0.png",
-            "IrradianceVolume_2_0_1.png",
-            "IrradianceVolume_2_1_0.png",
-            "IrradianceVolume_2_1_1.png",
-            "IrradianceVolume_2_2_0.png",
-            "IrradianceVolume_2_2_1.png",
-            "IrradianceVolume_2_3_0.png",
-            "IrradianceVolume_2_3_1.png",
-            "IrradianceVolume_3_0_0.png",
-            "IrradianceVolume_3_0_1.png",
-            "IrradianceVolume_3_1_0.png",
-            "IrradianceVolume_3_1_1.png",
-            "IrradianceVolume_3_2_0.png",
-            "IrradianceVolume_3_2_1.png",
-            "IrradianceVolume_3_3_0.png",
-            "IrradianceVolume_3_3_1.png"
-        ]
-    },
-    
-]
-```
-
-**Reflection cubemap example**
-
-```json
-{
-    "type": "cubemap",
-    "radius": 22.0,
-    "position": [
-        0.0,
-        0.0,
-        5.0
-    ],
-    "falloff": 0.10000000149011612,
-    "probe_type": "reflection",
-    "name": "ReflectionCubemap",
-    "size": 256,
-    "faces_files": [
-        "ReflectionCubemap_negx.png",
-        "ReflectionCubemap_posx.png",
-        "ReflectionCubemap_negy.png",
-        "ReflectionCubemap_posy.png",
-        "ReflectionCubemap_negz.png",
-        "ReflectionCubemap_posz.png"
-    ]
-}
-```
-
-
 ### Compute and Packing
 
 Cumpute phase  load renderered image into blender and use internal blender openGL API to compute irradiance, create reflectance level and pack final data in textures sheet for fast integration. Data are exported as JSON and PNG texture sheet, one for each probe
 
-#### Data
-
-TBD
 
 ### Scene probes data
 
 Scene probes data are exported as JSON and includes all probes attributes and a link to data texture
+Rendered probes attributed are saved in a json file (probes.json) with a commmon main structure and sub data property with specific probe type based settings
 
-(TBD)
+```json
+[
+    // Irradiance
+    {
+        "name": "IrradianceVolume",
+        "file": "IrradianceVolume_packed.png",
+        "cubemap_size": 32,
+        "texture_size": 2048,
+        "type": "irradiance",
+        "position": [
+            0.0,
+            0.0,
+            5.0
+        ],
+        "scale": [
+            14.5,
+            14.5,
+            5.0
+        ],
+
+        // Irradiance specific data
+        "data": {
+            "falloff": 1.0,
+            "resolution": [
+                5,
+                5,
+                2
+            ],
+            "clip_start": 0.009999999776482582,
+            "clip_end": 40.0
+        }
+    },
+
+    // Reflection
+    {
+        "name": "ReflectionCubemap",
+        "file": "ReflectionCubemap_packed.png",
+        "cubemap_size": 512,
+        "texture_size": 2048,
+        "type": "reflection",
+        "position": [
+            0.0,
+            0.0,
+            5.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+
+        // Reflection specific data
+        "data": {
+            "start_roughness": 0.0,
+            "level_roughness": 0.25,
+            "nb_levels": 3,
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "falloff": 0.10000000149011612,
+            "radius": 22.0
+        }
+    }
+]
+```
 
 ### Progress
 
@@ -137,7 +98,9 @@ This plugin is in its development phase, here is the list of milestones ordered 
 - [X] Complete scene Render operator
 - [X] Irradiance Cubemap packing
 - [X] Refletance Cubemap packing
+- [ ] Asynchronous rendering + progress bar
 - [ ] Blender headless python command
+- [ ] Support of other data kind using blender bake system (eg. Ambiant occlusion)
 - [ ] HDR Support
 
 
