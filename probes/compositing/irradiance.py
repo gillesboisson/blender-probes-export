@@ -3,12 +3,13 @@ import gpu
 from gpu_extras.batch import batch_for_shader
 
 from gpu.types import *
+from ..helpers.poll import get_context_probes_names
 
 
 from .shader import *
 from .pack import *
 
-from ..helpers.files import get_render_cache_subdirectory
+from ..helpers.files import get_render_cache_subdirectory, load_probe_json_render_data, save_probe_json_pack_data, save_scene_json_pack_data
 
 def pack_irradiance_cubemap(
         map_texture_files,
@@ -83,7 +84,7 @@ def pack_irradiance_cubemap(
     image.save_render(output_file_path)
 
 
-def pack_irradiance_probe(export_directory: str, data, cubemap_size, max_texture_size = 1024):
+def pack_irradiance_probe_to_image(export_directory: str, data, cubemap_size, max_texture_size = 1024):
 
     source_files_path = []
     final_export_directory = get_render_cache_subdirectory(export_directory, data['name'])
@@ -96,3 +97,54 @@ def pack_irradiance_probe(export_directory: str, data, cubemap_size, max_texture
         cubemap_size, 'irradiance_pack',
         max_texture_size,
     )
+
+    pack_data =  {
+        'name': data['name'],
+        'file': data['name'] + '_packed.png',
+        'cubemap_size': cubemap_size,
+        'texture_size': max_texture_size,
+        'type': 'irradiance',
+        'position': data['position'],
+        'scale': data['scale'],
+        'data': {
+            'falloff': data['falloff'],
+            'resolution': data['resolution'],
+            'clip_start': data['clip_start'],
+            'clip_end': data['clip_end'],
+
+        }
+    }
+
+    save_probe_json_pack_data(export_directory, data['name'], pack_data)
+
+    return
+
+
+def pack_irradiance_probe(context):
+    export_directory = context.scene.probes_export.export_directory_path
+        
+    prob_object = context.object
+    prob = prob_object.data
+    settings = prob.probes_export
+
+    if(settings.use_default_settings):
+        map_size = context.scene.probes_export.irradiance_volume_default_export_map_size
+        export_max_texture_size = context.scene.probes_export.irradiance_volume_default_export_max_texture_size
+    else:
+        map_size = settings.export_map_size
+        export_max_texture_size = settings.export_max_texture_size
+
+
+    data = load_probe_json_render_data(export_directory, context.object.name)
+
+    if(data == None):
+        return None
+    
+
+    pack_irradiance_probe_to_image(export_directory, data, map_size, export_max_texture_size) 
+
+    probe_names = get_context_probes_names(context)
+
+    save_scene_json_pack_data(export_directory, probe_names)
+
+    return data

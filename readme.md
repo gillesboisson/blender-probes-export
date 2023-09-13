@@ -2,7 +2,9 @@
 
 Blender probes is blender plugin allowing to precompute reflectance, indirect luminance from blender and export data for use in external engine. It is based on blender probes object (reflection cubemap and irradiance grid) which has been design for blender eevee internal engine but not allowing baked data export.
 
-
+Probe export is done in 2 phases
+- Rendering : use Blender cycle engine tu render probes
+- Packing  : use Blender opengl API to compute irradiance and reflectance and pack data in texture sheet
 
 ### Rendering
 
@@ -113,9 +115,12 @@ Rendered probes attributed are saved in a json file (probes.json) in order to pa
 
 ### Compute and Packing
 
-Cumpute phase (In development) load renderered image into blender and use internal blender openGL API to compute irradiance, create reflectance level and pack final data in textures sheet for fast integration
+Cumpute phase  load renderered image into blender and use internal blender openGL API to compute irradiance, create reflectance level and pack final data in textures sheet for fast integration. Data are exported as JSON and PNG texture sheet, one for each probe
 
-(TBD)
+#### Data
+
+TBD
+
 ### Scene probes data
 
 Scene probes data are exported as JSON and includes all probes attributes and a link to data texture
@@ -128,10 +133,10 @@ This plugin is in its development phase, here is the list of milestones ordered 
 
 - [X] Irradiance probe render operator
 - [X] Reflectance probe render operator
-- [ ] Object probe baking settings 
-- [ ] Complete scene Render operator
-- [ ] Irradiance Cubemap packing
-- [ ] Refletance Cubemap packing
+- [X] Object probe baking settings 
+- [X] Complete scene Render operator
+- [X] Irradiance Cubemap packing
+- [X] Refletance Cubemap packing
 - [ ] Blender headless python command
 - [ ] HDR Support
 

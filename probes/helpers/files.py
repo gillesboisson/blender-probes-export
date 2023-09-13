@@ -67,16 +67,54 @@ def irradiance_file(export_directory, name, index_x, index_y, index_z,  extensio
     dir = get_render_cache_subdirectory(export_directory, name)
     return dir + '/' + irradiance_filename(index_x, index_y, index_z, extension)
 
+probe_render_json_file = 'rendered_probe.json'
+probe_pack_json_file = 'packed_probe.json'
 
-def save_probe_json_data(export_directory, name, data):
+
+def save_probe_json_render_data(export_directory, name, data):
     dir = get_render_cache_subdirectory(export_directory, name)
-    with open(dir + '/' + 'probe.json', 'w') as outfile:
+    with open(dir + '/' + probe_render_json_file, 'w') as outfile:
         json.dump(data, outfile, indent=4)
 
 
-def load_probe_json_data(export_directory, name):
+def load_probe_json_render_data(export_directory, name):
     dir = get_render_cache_subdirectory(export_directory, name)
-    if not os.path.exists(dir + '/' + 'probe.json'):
+    if not os.path.exists(dir + '/' + probe_render_json_file):
         return None
-    with open(dir + '/' + 'probe.json') as json_file:
+    with open(dir + '/' + probe_render_json_file) as json_file:
         return json.load(json_file)
+    
+
+def save_probe_json_pack_data(export_directory, name, data):
+    dir = get_render_cache_subdirectory(export_directory, name)
+    with open(dir + '/' + probe_pack_json_file, 'w') as outfile:
+        json.dump(data, outfile, indent=4)
+        
+def load_probe_json_pack_data(export_directory, name):
+    dir = get_render_cache_subdirectory(export_directory, name)
+    if not os.path.exists(dir + '/' + probe_pack_json_file):
+        return None
+    with open(dir + '/' + probe_pack_json_file) as json_file:
+        return json.load(json_file)
+
+
+def save_scene_json_pack_data(export_directory, probe_names):
+    # get probe pack data from render cache sub directories append json content in to a global in export directory
+    
+    pack_data = []
+
+
+    if(os.path.exists(export_directory)):
+        for name in probe_names:
+            if os.path.exists(get_render_cache_subdirectory(export_directory, name) + '/' + probe_pack_json_file):
+                with open(get_render_cache_subdirectory(export_directory, name) + '/' + probe_pack_json_file) as json_file:
+                    data = json.load(json_file)
+                    pack_data.append(data)
+
+        if(len(pack_data) > 0):
+            with open(export_directory + '/' + probe_pack_json_file, 'w') as outfile:
+                json.dump(pack_data, outfile, indent=4)
+                    
+
+    # save json file in export directory
+    

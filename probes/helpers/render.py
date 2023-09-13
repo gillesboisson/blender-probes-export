@@ -2,7 +2,7 @@
 
 from math import floor, pi
 
-from .files import get_or_create_render_cache_subdirectory, irradiance_filename, pano_filename, save_probe_json_data
+from .files import get_or_create_render_cache_subdirectory, irradiance_filename, pano_filename, save_probe_json_render_data
 
 import os
 import bpy
@@ -54,6 +54,7 @@ def render_pano_reflection_probe(context, operator, object, progress_min = 0, pr
         'type': 'pano',
         'radius': radius,
         "position": transform.translation.to_tuple(),
+        'scale': transform.to_scale().to_tuple(),
         'falloff': prob_object.data.falloff,
         'probe_type': 'reflection',
         'name': object.name,
@@ -82,7 +83,7 @@ def render_pano_reflection_probe(context, operator, object, progress_min = 0, pr
         set_pano_render_settings(context, camera, filepath, samples_max = samples_max, height = height)
         bpy.ops.render.render(write_still=True)
 
-        save_probe_json_data(export_directory, prob_object.name, result_data)    
+        save_probe_json_render_data(export_directory, prob_object.name, result_data)    
 
     except Exception as e:
         catched_exception = e
@@ -131,7 +132,11 @@ def render_cubemap_reflection_probe(context, operator, object, progress_min = 0,
         'type': 'cubemap',
         'radius': radius,
         "position": transform.translation.to_tuple(),
-        'falloff': prob_object.data.falloff,
+        'scale': transform.to_scale().to_tuple(),
+        'falloff': prob.falloff,
+        'resolution': [prob.grid_resolution_x, prob.grid_resolution_y, prob.grid_resolution_z],
+        'clip_start': prob.clip_start,
+        'clip_end': prob.clip_end,
         'probe_type': 'reflection',
         'name': object.name,
         'size': height, 
@@ -158,7 +163,7 @@ def render_cubemap_reflection_probe(context, operator, object, progress_min = 0,
 
             result_data['faces_files'].append(filename)
 
-        save_probe_json_data(export_directory, prob_object.name, result_data)
+        save_probe_json_render_data(export_directory, prob_object.name, result_data)
 
     except Exception as e:
         catched_exception = e
@@ -213,13 +218,16 @@ def render_pano_irradiance_probe(context, operator, object, progress_min = 0, pr
 
     result_data = { 
         'type': 'pano',
-        'resolution': [prob.grid_resolution_x, prob.grid_resolution_y, prob.grid_resolution_z],
-        'world_mat': transform_list,
-        'falloff': prob.falloff,
         'probe_type': 'irradiance',
         'name': object.name,
         'width': height * 2,
-        'height': height, 
+        'height': height,
+        "position": transform.translation.to_tuple(),
+        'scale': transform.to_scale().to_tuple(),
+        'falloff': prob.falloff,
+        'resolution': [prob.grid_resolution_x, prob.grid_resolution_y, prob.grid_resolution_z],
+        'clip_start': prob.clip_start,
+        'clip_end': prob.clip_end, 
         'files': []
     }
 
@@ -258,7 +266,7 @@ def render_pano_irradiance_probe(context, operator, object, progress_min = 0, pr
 
                     result_data['files'].append(filename)
 
-        save_probe_json_data(export_directory, object.name, result_data)  
+        save_probe_json_render_data(export_directory, object.name, result_data)  
 
     except Exception as e:
         catched_exception = e

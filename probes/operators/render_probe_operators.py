@@ -3,7 +3,10 @@ import bpy
 from bpy.types import Operator
 
 import json
-from ..helpers.poll import is_exportabled_light_probe
+
+from ..compositing.reflectance import pack_reflectance_probe
+from ..compositing.irradiance import pack_irradiance_probe
+from ..helpers.poll import is_exportable_light_probe
 
 from ..helpers.render import render_pano_reflection_probe, render_pano_irradiance_probe
 
@@ -11,13 +14,14 @@ from ..helpers.files import clear_render_cache_subdirectory, render_cache_subdir
 
 class BaseRenderProbe(Operator):    
     def execute_reflection(self, context, object, progress_min = 0, progress_max = 1):
-        return render_pano_reflection_probe(context, self, object, progress_min, progress_max)
-    
+        render_pano_reflection_probe(context, self, object, progress_min, progress_max)
+        pack_reflectance_probe(context)
 
     def execute_grid(self, context, object, progress_min = 0, progress_max = 1):
-        return render_pano_irradiance_probe(context, self, object, progress_min, progress_max)
+        render_pano_irradiance_probe(context, self, object, progress_min, progress_max)
+        pack_irradiance_probe(context)  
 
-
+    
 class RenderProbe(BaseRenderProbe):
     bl_idname = "probe.render"
     bl_label = "Render probe"
@@ -26,7 +30,7 @@ class RenderProbe(BaseRenderProbe):
 
     @classmethod
     def poll(cls, context):
-        return is_exportabled_light_probe(context) 
+        return is_exportable_light_probe(context) 
 
 
 
@@ -48,7 +52,7 @@ class ClearRenderProbeCache(Operator):
 
     @classmethod
     def poll(cls, context):
-        return is_exportabled_light_probe(context) and render_cache_subdirectory_exists(
+        return is_exportable_light_probe(context) and render_cache_subdirectory_exists(
             context.scene.probes_export.export_directory_path,
             context.object.name
         )
@@ -85,14 +89,6 @@ class RenderProbes(BaseRenderProbe):
             elif(object.data.type == 'GRID'):
                 render_data.append(self.execute_grid(context, object, progress_min, progress_max))
             progress_min += 1
-
-
-        export_path = context.scene.probes_export.export_directory_path
-        json_data = json.dumps(render_data, indent=4)
-
-        with open(export_path + '/probes.json', 'w') as json_file:
-            json_file.write(json_data)
-        
 
         return {"FINISHED"}
 

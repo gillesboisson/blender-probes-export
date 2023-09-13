@@ -1,7 +1,7 @@
 import bpy
 from bpy.types import Context
 
-from ..helpers.poll import is_exportabled_light_probe
+from ..helpers.poll import is_exportable_light_probe
 
 
 
