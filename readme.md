@@ -17,6 +17,52 @@ Cumpute phase  load renderered image into blender and use internal blender openG
 
 ### Scene probes data
 
+#### File structure
+
+Scene probes data are exported in a folder defined by user, in scene probes export panel.
+
+- export_directory
+    - probes.json
+    - reflection_1_packed.png
+    - irradiance_2_packed.png
+    - probes.json
+    - __render_cache                    : cache folder for rendered / packed probes
+        - reflection_1                  : per probe folder
+            - 0_0_0.png                 
+            - 1_0_0.png                 
+            - ...
+            - packed_probe.json         : packed probe data (use as cache data)
+            - rendered_probe.json       : rendered probe data (use as cache data)
+
+        - irradiance_2                  : per probe folder
+            - pano.png                  : per probe equirectangle is baked
+            - packed_probe.json         : (use as cache data)
+            - rendered_probe.json       : (use as cache data)
+
+
+#### image
+##### Irradiance
+
+For each irradiance grid cell, a panoramic equirectangle is baked and saved in a png file
+
+![0_0_0.png](./doc/images/0_0_0.png)
+
+Final packed data is saved in a png file
+
+![IrradianceVolume_packed.png](./doc/images/IrradianceVolume_packed.png)
+
+##### Reflection
+
+For each reflection probe, a panoramic equirectangle is baked and saved in a png file
+
+![pano.png](./doc/images/pano.png)
+
+Final packed data is saved in a png file with all roughness level
+
+![ReflectionCubemap_packed.png](./doc/images/ReflectionCubemap_packed.png)
+
+#### Data structure
+
 Scene probes data are exported as JSON and includes all probes attributes and a link to data texture
 Rendered probes attributed are saved in a json file (probes.json) with a commmon main structure and sub data property with specific probe type based settings
 
@@ -40,7 +86,7 @@ Rendered probes attributed are saved in a json file (probes.json) with a commmon
             5.0
         ],
 
-        // Irradiance specific data
+        // probe type specific data
         "data": {
             "falloff": 1.0,
             "resolution": [
@@ -71,7 +117,7 @@ Rendered probes attributed are saved in a json file (probes.json) with a commmon
             1.0
         ],
 
-        // Reflection specific data
+        // probe type  specific data
         "data": {
             "start_roughness": 0.0,
             "level_roughness": 0.25,
@@ -87,6 +133,7 @@ Rendered probes attributed are saved in a json file (probes.json) with a commmon
     }
 ]
 ```
+
 
 
 ### Progress
