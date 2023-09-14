@@ -15,6 +15,22 @@ from .files import pano_file, cubemap_filename, irradiance_file
 from .config import cube_map_face_names, cube_map_euler_rotations
 
 
+def reset_objects_render_settings(context):
+    for ob in context.scene.objects:
+        if ob.type == 'MESH':
+            ob.hide_render = False
+
+def update_objects_settings_for_irradiance(context):
+    for ob in context.scene.objects:
+        if ob.type == 'MESH':
+            ob.hide_render = not ob.probes_render.render_by_irradiance_probes
+
+def update_objects_settings_for_reflection(context):
+    for ob in context.scene.objects:
+        if ob.type == 'MESH':
+            ob.hide_render = not ob.probes_render.render_by_reflection_probes
+
+
 def print_render_progress(text, progress_min = 0, progress_max = 1, progress: float = 0):
     print( str(floor( (progress_min + progress) / progress_max * 100)) + '%' + ' :: ' + text)
 

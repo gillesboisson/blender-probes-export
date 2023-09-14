@@ -8,7 +8,7 @@ from ..compositing.reflectance import pack_reflectance_probe
 from ..compositing.irradiance import pack_irradiance_probe
 from ..helpers.poll import is_exportable_light_probe
 
-from ..helpers.render import render_pano_reflection_probe, render_pano_irradiance_probe
+from ..helpers.render import render_pano_reflection_probe, render_pano_irradiance_probe, reset_objects_render_settings, update_objects_settings_for_irradiance, update_objects_settings_for_reflection
 
 from ..helpers.files import clear_render_cache_subdirectory, render_cache_subdirectory_exists, clear_render_cache_directory
 
@@ -17,7 +17,7 @@ class BaseRenderProbe(Operator):
         render_pano_reflection_probe(context, self, object, progress_min, progress_max)
         pack_reflectance_probe(context, object)
 
-    def execute_grid(self, context, object, progress_min = 0, progress_max = 1):
+    def execute_irradiance_grid(self, context, object, progress_min = 0, progress_max = 1):
         render_pano_irradiance_probe(context, self, object, progress_min, progress_max)
         pack_irradiance_probe(context, object)  
 
@@ -37,11 +37,13 @@ class RenderProbe(BaseRenderProbe):
     def execute(self, context):
         
         if(context.object.data.type == 'CUBEMAP'):
+            update_objects_settings_for_reflection(context)
             self.execute_reflection(context, context.object)
         elif(context.object.data.type == 'GRID'):
-            self.execute_grid(context, context.object)
+            update_objects_settings_for_irradiance(context)
+            self.execute_irradiance_grid(context, context.object)
         
-
+        reset_objects_render_settings(context)
         return {"FINISHED"}
 
 class ClearRenderProbeCache(Operator):
@@ -82,14 +84,19 @@ class RenderProbes(BaseRenderProbe):
                     probes.append(object)
                     progress_max += 1
 
+        update_objects_settings_for_reflection(context)
+
         for object in probes:
             if(object.data.type == 'CUBEMAP'):
                 self.execute_reflection(context, object , progress_min, progress_max)
-
-            elif(object.data.type == 'GRID'):
-                self.execute_grid(context, object, progress_min, progress_max)
+        
+        update_objects_settings_for_irradiance(context)
+        for object in probes:
+            if(object.data.type == 'GRID'):
+                self.execute_irradiance_grid(context, object, progress_min, progress_max)
             progress_min += 1
 
+        reset_objects_render_settings(context)
         return {"FINISHED"}
 
 class ClearProbeCacheDirectory(Operator):

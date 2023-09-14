@@ -4,12 +4,17 @@ import bpy
 from .scene_settings_panel import SceneSettingsPanel, SceneIrradianceSettingsPanel, SceneReflectionSettingsPanel
 from .probe_settings_panel import ProbeSettingsPanel
 
+from .object_probe_render_panel import ObjectProbeRenderPanel
+
 classes = (
     SceneSettingsPanel,
     ProbeSettingsPanel,
     # sub panels
     SceneIrradianceSettingsPanel,
     SceneReflectionSettingsPanel,
+
+    # object panels
+    ObjectProbeRenderPanel,
 )
 
 def register_panels():

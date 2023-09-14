@@ -6,6 +6,8 @@ Probe export is done in 2 phases
 - Rendering : use Blender cycle engine tu render probes
 - Packing  : use Blender opengl API to compute irradiance and reflectance and pack data in texture sheet
 
+All Mesh Objects are by default rendered the first phase but can be ignored (eg. Dynamic object) using a custom rendered option in object probe export (TODO: integrate a switch in object structure panel if possible)
+
 ### Rendering
 
 Rendering phase Use blender cycle renderer to render scene static object in reflectance cubemaps and panomic equi rectangle for each Irradiance Grid cell, final result is a png (HDR not supported yet) images for each probe
@@ -151,11 +153,6 @@ This plugin is in its development phase, here is the list of milestones ordered 
 - [ ] Blender headless python command
 - [ ] Support of other data kind using blender bake system (eg. Ambiant occlusion)
 - [ ] HDR Support
-
-
-
-
-
 
 ## License
 
