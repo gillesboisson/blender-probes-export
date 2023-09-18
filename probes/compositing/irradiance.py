@@ -70,6 +70,8 @@ def pack_irradiance_cubemap(
         buffer = fb.read_color(0,0,texture_width,texture_height,4,0,'UBYTE')
 
     
+
+    
     offscreen.free()
 
     if not image_name in bpy.data.images:
