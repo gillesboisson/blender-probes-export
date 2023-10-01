@@ -131,7 +131,9 @@ def pack_reflectance_probe_to_image(
             'nb_levels': nb_levels,
             'scale': data['scale'],
             'falloff': data['falloff'],
-            'radius': data['radius'],
+            'influence_distance': data['influence_distance'],
+            'intensity': data['intensity'],
+            'influence_type': data['influence_type'],
         }
     }
 

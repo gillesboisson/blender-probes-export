@@ -68,11 +68,15 @@ def render_pano_reflection_probe(context, operator, object, progress_min = 0, pr
 
     result_data = {
         'type': 'pano',
-        'radius': radius,
         "position": transform.translation.to_tuple(),
         'scale': transform.to_scale().to_tuple(),
         'falloff': prob_object.data.falloff,
+        'intensity': prob.intensity,
+        'influence_type': prob.influence_type,
+        'influence_distance': prob.influence_distance,
+
         'probe_type': 'reflection',
+        
         'name': object.name,
         'width': height * 2,
         'height': height, 
@@ -150,6 +154,7 @@ def render_cubemap_reflection_probe(context, operator, object, progress_min = 0,
         "position": transform.translation.to_tuple(),
         'scale': transform.to_scale().to_tuple(),
         'falloff': prob.falloff,
+        'intensity': prob.intensity,
         'resolution': [prob.grid_resolution_x, prob.grid_resolution_y, prob.grid_resolution_z],
         'clip_start': prob.clip_start,
         'clip_end': prob.clip_end,
