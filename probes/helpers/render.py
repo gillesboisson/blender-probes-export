@@ -232,18 +232,22 @@ def render_pano_irradiance_probe(context, operator, object, progress_min = 0, pr
         transform_list.append(r.z)
         transform_list.append(r.w)
 
+    translation_tupple = transform.translation.to_tuple()
+    scale_tupple = transform.to_scale().to_tuple()
+
     result_data = { 
         'type': 'pano',
         'probe_type': 'irradiance',
         'name': object.name,
         'width': height * 2,
         'height': height,
-        "position": transform.translation.to_tuple(),
-        'scale': transform.to_scale().to_tuple(),
+        "position": [translation_tupple[0], translation_tupple[2], -translation_tupple[1]],
+        'scale': [scale_tupple[0], scale_tupple[2], scale_tupple[1]],
         'falloff': prob.falloff,
-        'resolution': [prob.grid_resolution_x, prob.grid_resolution_y, prob.grid_resolution_z],
+        'resolution': [prob.grid_resolution_x, prob.grid_resolution_z, prob.grid_resolution_y],
         'clip_start': prob.clip_start,
         'clip_end': prob.clip_end, 
+        'influence_distance': prob.influence_distance, 
         'files': []
     }
 
@@ -260,12 +264,15 @@ def render_pano_irradiance_probe(context, operator, object, progress_min = 0, pr
 
         nb_panos = resolution_x * resolution_y * resolution_z
 
+        # render each pano in opengl order (x -> x, y > -z, z -> -y)
         for rx in range(resolution_x):
             vx = (rx + 0.5) / resolution_x * 2 - 1 
-            for ry in range(resolution_y):
-                vy = (ry + 0.5) / resolution_y * 2 - 1
-                for rz in range(resolution_z):
-                    vz = (rz + 0.5) / resolution_z * 2 - 1
+           
+            for rz in range(resolution_z):
+                vz = (rz + 0.5) / resolution_z * 2 - 1
+                for rry in range(resolution_y):
+                    ry = resolution_y - rry - 1
+                    vy = (ry + 0.5) / resolution_y * 2 - 1
                     filename = irradiance_filename(rx, ry, rz)
                     
                     final_file_path = final_export_directory + '/' + filename

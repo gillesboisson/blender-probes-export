@@ -113,6 +113,7 @@ def pack_irradiance_probe_to_image(export_directory: str, data, cubemap_size, ma
             'resolution': data['resolution'],
             'clip_start': data['clip_start'],
             'clip_end': data['clip_end'],
+            'influence_distance': data['influence_distance'],
 
         }
     }

@@ -41,10 +41,10 @@ class ProbeSettingsPanel(bpy.types.Panel):
         col = row.column()
         col.operator('probe.render', icon='RENDER_STILL')
         col = row.column()
-        # if data.type == 'GRID':
-        #     col.operator('probe.pack_irradiance', icon='EXPORT')
-        # elif data.type == 'CUBEMAP' :
-        #     col.operator('probe.pack_relection', icon='EXPORT')
+        if data.type == 'GRID':
+            col.operator('probe.pack_irradiance', icon='EXPORT')
+        elif data.type == 'CUBEMAP' :
+            col.operator('probe.pack_relection', icon='EXPORT')
 
         col = row.column()
         col.operator('probe.clear_cache', icon='TRASH')

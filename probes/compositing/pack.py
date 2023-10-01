@@ -30,6 +30,7 @@ def get_cubemap_pack_coords(cubemap_size, sub_level = 0,nb_cubemap = 1, max_text
     cubemap_size /=  pow(2, sub_level)
 
     # face_size = cubemap_size / (sub_level * sub_level + 1) 
+    face_map = [0,1,2,3,4,5]
     print(sub_level, cubemap_size)
     for i in range(nb_cubemap):
         cluster_x = i % nb_cluster_x
@@ -46,21 +47,45 @@ def get_cubemap_pack_coords(cubemap_size, sub_level = 0,nb_cubemap = 1, max_text
         
         map_coords = []
 
+
+
         for face_ind in range(6):
-            face_x = face_ind % nb_face_x
-            face_y = floor(face_ind / nb_face_x)
+            mapped_face_ind = face_map[face_ind]
+            face_x = mapped_face_ind % nb_face_x
+            face_y = floor(mapped_face_ind / nb_face_x)
 
             
 
             face_left = left + face_x * cubemap_size
             face_top = top + face_y * cubemap_size
+   
+            # flip for opengl coord
+            # if(face_ind < 2):
+            #     map_coords.append((
+                   
+            #         (face_left,face_top + cubemap_size),
+            #         (face_left + cubemap_size,face_top + cubemap_size),
+            #          (face_left,face_top),
+            #         (face_left + cubemap_size,face_top),
+            #     ))     
+            # else:
 
-            map_coords.append((
-                (face_left,face_top),
-                (face_left + cubemap_size,face_top),
-                (face_left,face_top + cubemap_size),
-                (face_left + cubemap_size,face_top + cubemap_size)
-            ))       
+            if(face_ind > 1 and face_ind < 4 ):
+                map_coords.append((
+                   
+                    (face_left + cubemap_size,face_top + cubemap_size),
+                    (face_left,face_top + cubemap_size),
+                    (face_left + cubemap_size,face_top),
+                    (face_left,face_top),
+                    
+                ))      
+            else:
+                map_coords.append((
+                    (face_left,face_top),
+                    (face_left + cubemap_size,face_top),
+                    (face_left,face_top + cubemap_size),
+                    (face_left + cubemap_size,face_top + cubemap_size),
+                ))   
 
         coords.append(map_coords)
 
