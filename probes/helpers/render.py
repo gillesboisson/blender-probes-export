@@ -68,7 +68,7 @@ def render_pano_reflection_probe(context, operator, object, progress_min = 0, pr
 
     result_data = {
         'type': 'pano',
-        "position": transform.translation.to_tuple(),
+        "position": [transform.translation.x, transform.translation.z, -transform.translation.y],
         'scale': transform.to_scale().to_tuple(),
         'falloff': prob_object.data.falloff,
         'intensity': prob.intensity,
@@ -151,7 +151,7 @@ def render_cubemap_reflection_probe(context, operator, object, progress_min = 0,
     result_data = {
         'type': 'cubemap',
         'radius': radius,
-        "position": transform.translation.to_tuple(),
+        "position": [transform.translation.x, transform.translation.z, -transform.translation.y],
         'scale': transform.to_scale().to_tuple(),
         'falloff': prob.falloff,
         'intensity': prob.intensity,
