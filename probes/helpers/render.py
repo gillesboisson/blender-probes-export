@@ -89,7 +89,7 @@ def render_pano_reflection_probe(context, operator, object, progress_min = 0, pr
         # camera.scale = transform.to_scale()
         max_scale = max(camera.scale.x, camera.scale.y, camera.scale.z)
         camera.rotation_euler.x += pi / 2
-        camera.data.clip_end = radius * max_scale
+        camera.data.clip_end = 100
         camera.data.clip_start = 0.01
 
         # get current file path
