@@ -77,16 +77,25 @@ def pack_reflectance_cubemap(
 
     
     offscreen.free()
+    
+    if image_name in bpy.data.images:
+        bpy.data.images.remove(bpy.data.images[image_name])
 
-    if not image_name in bpy.data.images:
-        bpy.data.images.new(image_name, texture_width, texture_height)
+    bpy.data.images.new(image_name, texture_width, texture_height)
+    
+    
 
     image = bpy.data.images[image_name]
     image.scale(texture_width, texture_height)
+    
+    
 
     buffer.dimensions = texture_width * texture_height * 4
     image.pixels = [v / 255 for v in buffer]
-
+    image.filepath_raw = output_file_path
+    image.alpha_mode = 'NONE'
+    image.file_format = 'PNG'
+    
     image.save_render(output_file_path)
     
 
