@@ -137,6 +137,7 @@ def pack_reflectance_probe_to_image(
         'data': {
             'start_roughness': start_roughness,
             'level_roughness': level_roughness,
+            'end_roughness' : start_roughness + level_roughness * nb_levels, 
             'nb_levels': nb_levels,
             'scale': data['scale'],
             'falloff': data['falloff'],
