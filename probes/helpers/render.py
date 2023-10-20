@@ -66,9 +66,8 @@ def render_pano_global_probe(context, operator, object, progress_min = 0, progre
     catched_exception = None
     
     result_data = {
-        'type': 'pano',
+        'type': 'global',
         "position": [transform.translation.x, transform.translation.z, -transform.translation.y],
-        'probe_type': 'global'   
     }
 
 
