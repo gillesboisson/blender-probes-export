@@ -27,6 +27,7 @@ Scene probes data are exported in a folder defined by user, in scene probes expo
     - probes.json
     - reflection_1_packed.png
     - irradiance_2_packed.png
+    - global_pano.hdr
     - probes.json
     - __render_cache                    : cache folder for rendered / packed probes
         - reflection_1                  : per probe folder
@@ -40,7 +41,11 @@ Scene probes data are exported in a folder defined by user, in scene probes expo
             - pano.png                  : per probe equirectangle is baked
             - packed_probe.json         : (use as cache data)
             - rendered_probe.json       : (use as cache data)
-
+        - Global probe                  : fix name
+            - global_pano.hdr           : renderer panorama
+            - packed_probe.json         : (use as cache data)
+            - rendered_probe.json       : (use as cache data)
+            
 
 #### image
 ##### Irradiance
@@ -62,6 +67,13 @@ For each reflection probe, a panoramic equirectangle is baked and saved in a png
 Final packed data is saved in a png file with all roughness level
 
 ![ReflectionCubemap_packed.png](./doc/images/ReflectionCubemap_packed.png)
+
+##### Global environment
+
+A global environment map is also baked and saved in hdr file
+
+TODO: create custom blender objet
+It can be define through a blender reflection cubemap with Use as global probe environment option checked 
 
 #### Data structure
 

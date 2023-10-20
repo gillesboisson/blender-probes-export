@@ -58,6 +58,16 @@ def pano_file(export_directory, name, extension = 'png'):
     dir = get_render_cache_subdirectory(export_directory, name)
     return dir + '/' + pano_filename(extension)
 
+def global_pano_filename( extension = 'hdr'):
+    return 'pano.' + extension
+
+global_probe_render_name = 'Global probe'
+
+def global_pano_file(export_directory, extension = 'hdr'):
+    dir = get_render_cache_subdirectory(export_directory, global_probe_render_name)
+    return dir + '/'+global_pano_filename(extension)
+
+
 
 def irradiance_filename(index_x, index_y, index_z,  extension = 'png'):
     return str(index_x) + '_' + str(index_y) + '_' + str(index_z) + '.' + extension
@@ -68,9 +78,18 @@ def irradiance_file(export_directory, name, index_x, index_y, index_z,  extensio
     return dir + '/' + irradiance_filename(index_x, index_y, index_z, extension)
 
 probe_render_json_file = 'rendered_probe.json'
+
 probe_pack_json_file = 'packed_probe.json'
 final_probes_json_file = 'probes.json'
 
+
+def save_global_probe_json_render_data(export_directory, data):
+    dir = get_render_cache_subdirectory(export_directory, global_probe_render_name)
+    
+    with open(dir + '/' + probe_render_json_file, 'w') as outfile:
+        json.dump(data, outfile, indent=4)
+    with open(dir + '/' + probe_pack_json_file, 'w') as outfile:
+        json.dump(data, outfile, indent=4)
 
 def save_probe_json_render_data(export_directory, name, data):
     dir = get_render_cache_subdirectory(export_directory, name)
@@ -97,6 +116,9 @@ def load_probe_json_pack_data(export_directory, name):
         return None
     with open(dir + '/' + probe_pack_json_file) as json_file:
         return json.load(json_file)
+    
+def load_global_probe_json_render_data(export_directory):
+    return load_probe_json_render_data(export_directory, global_probe_render_name)
 
 
 def save_scene_json_pack_data(export_directory, probe_names):
@@ -104,13 +126,14 @@ def save_scene_json_pack_data(export_directory, probe_names):
     
     pack_data = []
 
-
     if(os.path.exists(export_directory)):
         for name in probe_names:
             if os.path.exists(get_render_cache_subdirectory(export_directory, name) + '/' + probe_pack_json_file):
                 with open(get_render_cache_subdirectory(export_directory, name) + '/' + probe_pack_json_file) as json_file:
                     data = json.load(json_file)
                     pack_data.append(data)
+            else:
+                print('No pack data found for probe ' + name)
 
         if(len(pack_data) > 0):
             with open(export_directory + '/' + final_probes_json_file, 'w') as outfile:

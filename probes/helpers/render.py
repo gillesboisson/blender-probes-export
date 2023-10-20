@@ -2,16 +2,16 @@
 
 from math import floor, pi
 
-from .files import get_or_create_render_cache_subdirectory, irradiance_filename, pano_filename, save_probe_json_render_data
+from .files import get_or_create_render_cache_subdirectory, irradiance_filename, pano_filename, save_probe_json_render_data, save_global_probe_json_render_data
 
 import os
 import bpy
 from mathutils import Matrix, Vector
 
 from .create import create_pano_camera, create_cube_camera
-from .settings import set_pano_render_settings, set_cube_render_settings
+from .settings import set_pano_render_settings, set_cube_render_settings, set_global_pano_render_settings
 
-from .files import pano_file, cubemap_filename, irradiance_file
+from .files import pano_file, cubemap_filename, global_pano_filename, global_pano_file
 from .config import cube_map_face_names, cube_map_euler_rotations
 
 
@@ -30,11 +30,80 @@ def update_objects_settings_for_reflection(context):
         if ob.type == 'MESH':
             ob.hide_render = not ob.probes_render.render_by_reflection_probes
 
+def update_objects_settings_for_global(context):
+    for ob in context.scene.objects:
+        if ob.type == 'MESH':
+            ob.hide_render = not ob.probes_render.render_by_global_probe
+
 
 def print_render_progress(text, progress_min = 0, progress_max = 1, progress: float = 0):
     print( str(floor( (progress_min + progress) / progress_max * 100)) + '%' + ' :: ' + text)
 
 
+# render panorama probe for global as hdr_pano
+def render_pano_global_probe(context, operator, object, progress_min = 0, progress_max = 1):
+    prob_object = object
+    prob = prob_object.data
+    settings = prob.probes_export
+
+    transform: Matrix = prob_object.matrix_world
+    radius = prob_object.data.influence_distance 
+    
+    camera = create_pano_camera(context)
+    export_directory = context.scene.probes_export.export_directory_path
+    samples_max = settings.global_samples_max
+    height = settings.global_map_size
+
+    if(export_directory == ''):
+        # warn user
+        operator.report({'INFO'}, "No directory defined")
+        return {"CANCELLED"}
+
+    if os.path.exists(export_directory) == False:
+        raise Exception("Directory does not exist")
+    
+
+    catched_exception = None
+    
+    result_data = {
+        'type': 'pano',
+        "position": [transform.translation.x, transform.translation.z, -transform.translation.y],
+        'probe_type': 'global'   
+    }
+
+
+    try:
+
+        camera.location = transform.translation 
+        camera.rotation_euler = transform.to_euler()
+        camera.rotation_euler.x += pi / 2
+        camera.data.clip_end = 100
+        camera.data.clip_start = 0.01
+
+        filepath = global_pano_file(export_directory)
+        result_data['file'] = global_pano_filename()    
+
+        print_render_progress('Baking global probe ', progress_min, progress_max, 0)
+        
+        set_global_pano_render_settings(context, camera, filepath, samples_max = samples_max, height = height)
+        bpy.ops.render.render(write_still=True)
+
+        save_global_probe_json_render_data(export_directory, result_data)    
+
+
+    except Exception as e:
+        catched_exception = e
+
+    context.scene.collection.objects.unlink(camera)
+    
+    if catched_exception != None:
+        raise catched_exception
+    
+    return result_data
+
+
+
+# render panorama probe for reflection
 def render_pano_reflection_probe(context, operator, object, progress_min = 0, progress_max = 1):
     prob_object = object
     prob = prob_object.data

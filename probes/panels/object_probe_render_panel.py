@@ -38,6 +38,7 @@ class ObjectProbeRenderPanel(bpy.types.Panel):
         
         col.prop(prop, 'render_by_reflection_probes')
         col.prop(prop, 'render_by_irradiance_probes')
+        col.prop(prop, 'render_by_global_probe')
 
 
         pass

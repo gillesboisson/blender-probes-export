@@ -9,7 +9,7 @@ from ..helpers.poll import get_context_probes_names
 from .shader import *
 from .pack import *
 
-from ..helpers.files import get_render_cache_subdirectory, load_probe_json_render_data, save_probe_json_pack_data, save_scene_json_pack_data
+from ..helpers.files import get_render_cache_subdirectory, load_probe_json_render_data, save_probe_json_pack_data, save_scene_json_pack_data,global_probe_render_name
 
 def pack_irradiance_cubemap(
         map_texture_files,
