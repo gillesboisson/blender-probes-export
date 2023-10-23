@@ -68,6 +68,8 @@ def render_pano_global_probe(context, operator, object, progress_min = 0, progre
     result_data = {
         'type': 'global',
         "position": [transform.translation.x, transform.translation.z, -transform.translation.y],
+        'clip_start': prob.clip_start,
+        'clip_end': prob.clip_end,
     }
 
 
@@ -76,8 +78,8 @@ def render_pano_global_probe(context, operator, object, progress_min = 0, progre
         camera.location = transform.translation 
         camera.rotation_euler = transform.to_euler()
         camera.rotation_euler.x += pi / 2
-        camera.data.clip_end = 100
-        camera.data.clip_start = 0.01
+        camera.data.clip_start = prob.clip_start
+        camera.data.clip_end = prob.clip_end
 
         filepath = global_pano_file(export_directory)
         result_data['file'] = global_pano_filename()    
@@ -114,6 +116,9 @@ def render_pano_reflection_probe(context, operator, object, progress_min = 0, pr
     camera = create_pano_camera(context)
     export_directory = context.scene.probes_export.export_directory_path
 
+
+
+
     if(settings.use_default_settings):
         samples_max = context.scene.probes_export.reflection_cubemap_default_samples_max
         height = context.scene.probes_export.reflection_cubemap_default_map_size
@@ -142,6 +147,8 @@ def render_pano_reflection_probe(context, operator, object, progress_min = 0, pr
         'intensity': prob.intensity,
         'influence_type': prob.influence_type,
         'influence_distance': prob.influence_distance,
+        'clip_start': prob.clip_start,
+        'clip_end': prob.clip_end,
 
         'probe_type': 'reflection',
         
@@ -157,8 +164,8 @@ def render_pano_reflection_probe(context, operator, object, progress_min = 0, pr
         # camera.scale = transform.to_scale()
         max_scale = max(camera.scale.x, camera.scale.y, camera.scale.z)
         camera.rotation_euler.x += pi / 2
-        camera.data.clip_end = 100
-        camera.data.clip_start = 0.01
+        camera.data.clip_start = prob.clip_start
+        camera.data.clip_end = prob.clip_end
 
         # get current file path
         # filename = pano_file(export_directory, prob_object.name)
@@ -236,9 +243,8 @@ def render_cubemap_reflection_probe(context, operator, object, progress_min = 0,
 
         camera.location = transform.translation 
         max_scale = max(camera.scale.x, camera.scale.y, camera.scale.z)
-        camera.data.clip_end = radius * max_scale
-        camera.data.clip_start = 0.01
-
+        camera.data.clip_start = prob.clip_start
+        camera.data.clip_end = prob.clip_end
         for i in range(6):
             filename = cubemap_filename(i, prob_object.name)
             final_file_path = final_export_directory + '/' + filename
@@ -319,7 +325,7 @@ def render_pano_irradiance_probe(context, operator, object, progress_min = 0, pr
         'falloff': prob.falloff,
         'resolution': [prob.grid_resolution_x, prob.grid_resolution_z, prob.grid_resolution_y],
         'clip_start': prob.clip_start,
-        'clip_end': prob.clip_end, 
+        'clip_end': prob.clip_end,
         'influence_distance': prob.influence_distance, 
         'files': []
     }

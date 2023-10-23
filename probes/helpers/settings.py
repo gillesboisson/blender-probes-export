@@ -1,4 +1,5 @@
 
+
 def set_global_pano_render_settings(context,camera, output_path, samples_max = 32, height = 256):
     context.scene.render.engine = 'CYCLES'
     context.scene.cycles.samples = samples_max
@@ -7,10 +8,12 @@ def set_global_pano_render_settings(context,camera, output_path, samples_max = 3
     context.scene.render.resolution_x = height * 2
     context.scene.render.resolution_y = height
 
-    context.scene.render.image_settings.file_format = 'HDR'
+    context.scene.render.image_settings.file_format = 'OPEN_EXR'
+    context.scene.render.image_settings.color_depth = '16'
     context.scene.render.filepath = output_path
-    
+
     context.scene.camera = camera
+    
 
 def set_pano_render_settings(context,camera, output_path, samples_max = 32, height = 256):
     context.scene.render.engine = 'CYCLES'

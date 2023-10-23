@@ -134,6 +134,8 @@ def pack_reflectance_probe_to_image(
         'type': 'reflection',
         'position': data['position'],
         'scale': data['scale'],
+        'clip_start': data['clip_start'],
+        'clip_end': data['clip_end'],
         'data': {
             'start_roughness': start_roughness,
             'level_roughness': level_roughness,
