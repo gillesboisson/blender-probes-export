@@ -51,7 +51,8 @@ def pack_global_probe(context, prob_object=None):
 
     
     cached_probe_file = global_pano_file(
-        context.scene.probes_export.export_directory_path
+        context.scene.probes_export.export_directory_path,
+        prob_object.name
     )
     map_image = bpy.data.images.load(cached_probe_file)
     texture = gpu.texture.from_image(map_image)
@@ -118,6 +119,7 @@ def pack_global_probe(context, prob_object=None):
     # os.popen('cp "' + cached_probe + '" "' + export_directory + '"')
 
     probe_names = get_context_probes_names(context)
+
 
     save_scene_json_pack_data(export_directory, probe_names)
 

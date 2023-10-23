@@ -118,8 +118,8 @@ def render_pano_global_probe(context, operator, object, progress_min = 0, progre
         camera.data.clip_start = prob.clip_start
         camera.data.clip_end = prob.clip_end
 
-        filepath = global_pano_file(export_directory)
-        result_data['file'] = global_pano_filename()    
+        filepath = global_pano_file(export_directory, prob_object.name)
+        result_data['file'] = global_pano_filename(prob_object.name)    
 
         print_render_progress('Baking global probe ', progress_min, progress_max, 0)
         
@@ -136,7 +136,7 @@ def render_pano_global_probe(context, operator, object, progress_min = 0, progre
 
     names = get_scene_renderered_object_names(context)
     result_data["backed_objects"] = names
-    # reset_collection_visibility(context)
+    reset_collection_visibility(context)
     context.scene.collection.objects.unlink(camera)
     
     if catched_exception != None:

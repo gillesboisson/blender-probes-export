@@ -58,14 +58,14 @@ def pano_file(export_directory, name, extension = 'png'):
     dir = get_render_cache_subdirectory(export_directory, name)
     return dir + '/' + pano_filename(extension)
 
-def global_pano_filename( extension = 'exr'):
-    return 'pano.' + extension
+def global_pano_filename(name,  extension = 'exr'):
+    return name+'.' + extension
 
 global_probe_render_name = 'Global probe'
 
-def global_pano_file(export_directory, extension = 'exr'):
+def global_pano_file(export_directory, name, extension = 'exr'):
     dir = get_render_cache_subdirectory(export_directory, global_probe_render_name)
-    return dir + '/'+global_pano_filename(extension)
+    return dir + '/'+global_pano_filename(name, extension)
 
 
 
