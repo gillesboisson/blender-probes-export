@@ -61,6 +61,13 @@ def reset_collection_visibility(context):
 
     for collection in collections:
         collection.hide_render = False
+
+def get_scene_renderered_object_names(context):
+    objects = []
+    for ob in context.scene.objects:
+        if ob.type == 'MESH' and ob.hide_render == False:
+            objects.append(ob.name)
+    return objects
     
 
 
@@ -118,6 +125,7 @@ def render_pano_global_probe(context, operator, object, progress_min = 0, progre
         
         set_global_pano_render_settings(context, camera, filepath, samples_max = samples_max, height = height)
         update_collection_visibility_for_probe(context.scene.collection.children, prob_object.data)
+        
 
         bpy.ops.render.render(write_still=True)
 
@@ -126,8 +134,9 @@ def render_pano_global_probe(context, operator, object, progress_min = 0, progre
     except Exception as e:
         catched_exception = e
 
-
-    reset_collection_visibility(context)
+    names = get_scene_renderered_object_names(context)
+    result_data["backed_objects"] = names
+    # reset_collection_visibility(context)
     context.scene.collection.objects.unlink(camera)
     
     if catched_exception != None:
@@ -210,16 +219,22 @@ def render_pano_reflection_probe(context, operator, object, progress_min = 0, pr
         
         set_pano_render_settings(context, camera, filepath, samples_max = samples_max, height = height)
         update_collection_visibility_for_probe(context.scene.collection.children, prob_object.data)
-
         bpy.ops.render.render(write_still=True)
 
+        names = get_scene_renderered_object_names(context)
+        result_data["backed_objects"] = names
         save_probe_json_render_data(export_directory, prob_object.name, result_data)    
+
+    
 
     except Exception as e:
         catched_exception = e
+    
+    
     reset_collection_visibility(context)
     context.scene.collection.objects.unlink(camera)
     
+
     if catched_exception != None:
         raise catched_exception
     
@@ -291,12 +306,16 @@ def render_cubemap_reflection_probe(context, operator, object, progress_min = 0,
             update_collection_visibility_for_probe(context.scene.collection.children, prob_object.data)
             bpy.ops.render.render(write_still=True)
 
-            result_data['faces_files'].append(filename)
 
+
+            result_data['faces_files'].append(filename)
+        names = get_scene_renderered_object_names(context)
+        result_data["backed_objects"] = names
         save_probe_json_render_data(export_directory, prob_object.name, result_data)
 
     except Exception as e:
         catched_exception = e
+
     reset_collection_visibility(context)
     context.scene.collection.objects.unlink(camera)
     
@@ -401,9 +420,10 @@ def render_pano_irradiance_probe(context, operator, object, progress_min = 0, pr
                     update_collection_visibility_for_probe(context.scene.collection.children, prob)
                     # render image
                     bpy.ops.render.render(write_still=True)
-
+                   
                     result_data['files'].append(filename)
-
+        names = get_scene_renderered_object_names(context)
+        result_data["backed_objects"] = names
         save_probe_json_render_data(export_directory, object.name, result_data)  
 
     except Exception as e:

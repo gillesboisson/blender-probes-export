@@ -47,14 +47,20 @@ def pack_global_probe(context, prob_object=None):
     )
 
     shader = cubemap_shader
-    offscreen = GPUOffScreen(
-        width=texture_width, height=texture_height, format="RGBA16F"
-        # texture_width, texture_height
-    )
 
+
+    
     cached_probe_file = global_pano_file(
         context.scene.probes_export.export_directory_path
     )
+    map_image = bpy.data.images.load(cached_probe_file)
+    texture = gpu.texture.from_image(map_image)
+    
+
+    offscreen = GPUOffScreen(
+        width=texture_width, height=texture_height, format=texture.format
+    )
+
 
     with offscreen.bind():
         fb = gpu.state.active_framebuffer_get()
@@ -66,8 +72,6 @@ def pack_global_probe(context, prob_object=None):
         map_normals = generate_cubemap_pack_normals(nb_maps)
         map_indices = generate_cubemap_quad_indices()
 
-        map_image = bpy.data.images.load(cached_probe_file)
-        texture = gpu.texture.from_image(map_image)
         shader.uniform_sampler("panorama", texture)
 
         map_uvs = uvs[0]
@@ -102,8 +106,7 @@ def pack_global_probe(context, prob_object=None):
     image.file_format = 'OPEN_EXR'
     image.scale(texture_width, texture_height)
     buffer.dimensions = texture_width * texture_height * 4
-    # image.pixels = buffer
-    image.pixels = [v / 2 for v in buffer]
+    image.pixels = buffer
     # image.pixels = [v / 255 for v in buffer]
     
     output_file_path = export_directory + "/" + image_name + ".exr"

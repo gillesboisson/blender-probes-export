@@ -54,7 +54,7 @@ class RenderProbe(BaseRenderProbe):
                 update_objects_settings_for_irradiance(context)
                 self.execute_irradiance_grid(context, context.object)
         
-        reset_objects_render_settings(context)
+        # reset_objects_render_settings(context)
         return {"FINISHED"}
 
 class ClearRenderProbeCache(Operator):

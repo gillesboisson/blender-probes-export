@@ -110,6 +110,7 @@ def pack_irradiance_probe_to_image(export_directory: str, data, cubemap_size, ma
         'scale': data['scale'],
         'clip_start': data['clip_start'],
         'clip_end': data['clip_end'],
+        'backed_objects': data['backed_objects'],
         'data': {
             'falloff': data['falloff'],
             'resolution': data['resolution'],  
