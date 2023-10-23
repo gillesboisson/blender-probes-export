@@ -36,6 +36,36 @@ def update_objects_settings_for_global(context):
             ob.hide_render = not ob.probes_render.render_by_global_probe
 
 
+
+
+def update_collection_visibility_for_probe(collection, probe_data):
+    visibility_collection = probe_data.visibility_collection
+    invert_visibility = probe_data.invert_visibility_collection
+    hasVisible = False
+    for child in collection:
+
+        if(child == visibility_collection):
+            child.hide_render = invert_visibility
+        elif not child.children: 
+
+            child.hide_render = not invert_visibility
+        else: 
+            child.hide_render = update_collection_visibility_for_probe(child.children, probe_data)
+
+        hasVisible = hasVisible or invert_visibility
+
+    return hasVisible
+    
+def reset_collection_visibility(context):
+    collections = context.scene.collection.children_recursive
+
+    for collection in collections:
+        collection.hide_render = False
+    
+
+
+
+
 def print_render_progress(text, progress_min = 0, progress_max = 1, progress: float = 0):
     print( str(floor( (progress_min + progress) / progress_max * 100)) + '%' + ' :: ' + text)
 
@@ -87,14 +117,17 @@ def render_pano_global_probe(context, operator, object, progress_min = 0, progre
         print_render_progress('Baking global probe ', progress_min, progress_max, 0)
         
         set_global_pano_render_settings(context, camera, filepath, samples_max = samples_max, height = height)
+        update_collection_visibility_for_probe(context.scene.collection.children, prob_object.data)
+
         bpy.ops.render.render(write_still=True)
 
         save_global_probe_json_render_data(export_directory, result_data)    
 
-
     except Exception as e:
         catched_exception = e
 
+
+    reset_collection_visibility(context)
     context.scene.collection.objects.unlink(camera)
     
     if catched_exception != None:
@@ -151,7 +184,7 @@ def render_pano_reflection_probe(context, operator, object, progress_min = 0, pr
         'clip_end': prob.clip_end,
 
         'probe_type': 'reflection',
-        
+
         'name': object.name,
         'width': height * 2,
         'height': height, 
@@ -176,13 +209,15 @@ def render_pano_reflection_probe(context, operator, object, progress_min = 0, pr
         print_render_progress('Baking probe '+object.name , progress_min, progress_max, 0)
         
         set_pano_render_settings(context, camera, filepath, samples_max = samples_max, height = height)
+        update_collection_visibility_for_probe(context.scene.collection.children, prob_object.data)
+
         bpy.ops.render.render(write_still=True)
 
         save_probe_json_render_data(export_directory, prob_object.name, result_data)    
 
     except Exception as e:
         catched_exception = e
-
+    reset_collection_visibility(context)
     context.scene.collection.objects.unlink(camera)
     
     if catched_exception != None:
@@ -253,7 +288,7 @@ def render_cubemap_reflection_probe(context, operator, object, progress_min = 0,
             camera.rotation_euler = cube_map_euler_rotations[i]
 
             set_cube_render_settings(context, camera, final_file_path, samples_max = samples_max, size = height)
-
+            update_collection_visibility_for_probe(context.scene.collection.children, prob_object.data)
             bpy.ops.render.render(write_still=True)
 
             result_data['faces_files'].append(filename)
@@ -262,7 +297,7 @@ def render_cubemap_reflection_probe(context, operator, object, progress_min = 0,
 
     except Exception as e:
         catched_exception = e
-
+    reset_collection_visibility(context)
     context.scene.collection.objects.unlink(camera)
     
     if catched_exception != None:
@@ -363,6 +398,7 @@ def render_pano_irradiance_probe(context, operator, object, progress_min = 0, pr
                     camera.location = res_vec
 
                     set_pano_render_settings(context, camera, final_file_path, samples_max = samples_max, height = height)
+                    update_collection_visibility_for_probe(context.scene.collection.children, prob)
                     # render image
                     bpy.ops.render.render(write_still=True)
 
@@ -373,6 +409,7 @@ def render_pano_irradiance_probe(context, operator, object, progress_min = 0, pr
     except Exception as e:
         catched_exception = e
 
+    reset_collection_visibility(context)
     context.scene.collection.objects.unlink(camera)
 
     if catched_exception != None:
