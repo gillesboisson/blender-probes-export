@@ -82,21 +82,21 @@ Baked example is based on [this scene](./doc/example-scenes/baking-probs.blend)
 
 ##### Irradiance
 
-For each irradiance grid cell, a panoramic equirectangle is baked and saved in a png file
+For each irradiance grid cell, a panoramic equirectangle is baked and saved in a image file
 
 ![0_0_0.png](./doc/images/1_0_1.png)
 
-Final packed data is saved in a png file
+Final packed data is saved in a image file
 
 ![IrradianceVolume_packed.png](./doc/images/IrradianceVolume_packed.png)
 
 ##### Reflection
 
-For each reflection probe, a panoramic equirectangle is baked and saved in a png file
+For each reflection probe, a panoramic equirectangle is baked and saved in a image file
 
 ![pano.png](./doc/images/pano.png)
 
-Final packed data is saved in a png file with all roughness level
+Final packed data is saved in a image file with all roughness level
 
 ![ReflectionCubemap_packed.png](./doc/images/ReflectionCubemap_packed.png)
 
@@ -104,7 +104,7 @@ Final packed data is saved in a png file with all roughness level
 
 A global environment map is also baked and saved in hdr file
 
-TODO: create custom blender objet
+TODO: create custom blender objet rather using reflectance probe
 It can be define through a blender reflection cubemap with Use as global probe environment option checked 
 
 #### Data structure
