@@ -77,7 +77,7 @@ Scene probes data are exported in a folder defined by user, in scene probes expo
 
 For each irradiance grid cell, a panoramic equirectangle is baked and saved in a png file
 
-![0_0_0.png](./doc/images/0_0_0.png)
+![0_0_0.png](./doc/images/1_0_1.png)
 
 Final packed data is saved in a png file
 
