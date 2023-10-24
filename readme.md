@@ -38,7 +38,7 @@ Global environment map is based on a mix of both algorithm.
 16Bits per channel HDR image are used for rendering and packed data
 Rendered and packed as open exr (mono layer) file
 
-### SDR : PNG
+#### SDR : PNG
 8Bits per channel SDR image are used for rendering and packed data
 Rendered and packed as png file with global exposure settings
 
