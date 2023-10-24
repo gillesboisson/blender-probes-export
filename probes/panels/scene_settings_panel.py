@@ -89,10 +89,19 @@ class SceneSettingsPanel(bpy.types.Panel):
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
-        col = layout.row()
         # col = row.column_flow(columns=2, align=True)
+        col = layout.row()
+        
+        
         col.prop(prop, 'export_directory_path')
         col.operator('probes_export.set_export_directory', icon='FILE_FOLDER', text='') #.export_path = prop.export_path
+        col = layout.column()
+        col.prop(prop, 'export_format') 
+        if prop.export_format == 'SDR':
+            col.prop(prop, 'export_exposure')
+
+        col = layout.row()
+        
         layout.separator(factor=2)
         col = layout.column()
         row = col.row(align=True)

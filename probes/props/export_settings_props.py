@@ -10,6 +10,18 @@ class ProbeExportSceneSettingsProps(bpy.types.PropertyGroup):
     export_path: StringProperty(name="Data path", default="")
     export_directory_path: StringProperty(name="Render directory", default="")
 
+     # export type
+    export_format: EnumProperty(
+        name="Export format",
+        items=(
+            ("SDR", "SDR : PNG image", "Export SDR"),
+            ("HDR" ,"HDR : Open EXR", "Export HDR"),
+        ),
+        default="HDR",
+    )
+
+    export_exposure: FloatProperty(name="Exposure", default=1.0, min=0.0, max=10.0)
+
 
     # render props
     reflection_cubemap_default_map_size: IntProperty(name="Map size", default=256)

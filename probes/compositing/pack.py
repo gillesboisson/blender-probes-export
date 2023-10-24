@@ -28,20 +28,24 @@ def get_cubemap_pack_coords(cubemap_size, sub_level = 0,nb_cubemap = 1, max_text
     (texture_width,texture_height,nb_cluster_x,nb_cluster_y,cluster_width,cluster_height) = get_cubemap_pack_layout(cubemap_size,nb_cubemap,max_texture_size,nb_face_x, nb_face_y)
 
     cubemap_size /=  pow(2, sub_level)
-
+    sub_level_pow_2 = pow(2, sub_level)
     # face_size = cubemap_size / (sub_level * sub_level + 1) 
     face_map = [0,1,2,3,4,5]
-    print(sub_level, cubemap_size)
+    # print(sub_level, cubemap_size)
     for i in range(nb_cubemap):
         cluster_x = i % nb_cluster_x
         cluster_y = floor(i / nb_cluster_x)
 
         left = cluster_x * cluster_width
         top = cluster_y * cluster_height
+        
 
-        for f in range(sub_level):
-            left += cluster_width / (2 * (f + 1))
-            top += cluster_height / (2 * (f + 1))
+        
+        left += cluster_width - cluster_width / sub_level_pow_2
+        top += cluster_height - cluster_height / sub_level_pow_2
+        
+
+            
 
         
         

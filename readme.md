@@ -12,10 +12,35 @@ All Mesh Objects are by default rendered the first phase but can be ignored (eg.
 
 Rendering phase Use blender cycle renderer to render scene static object in reflectance cubemaps and panomic equi rectangle for each Irradiance Grid cell, final result is a png (HDR not supported yet) images for each probe
 
+#### Visibility
+
+Each probes volumes has visibility settings to define which objects collection are renderer, it is based on existing blender engine features. By default all object are visible but it can be changed in object probe export panel.
+
+Each scene object has a custom visibility options (1 per probe volume type). It allows to define which objects are rendered. This work in unions (&) with probe volume collection visibility settings.
+
+All rendered objects are exported in probe baked_objects property
+
 ### Compute and Packing
 
 Cumpute phase  load renderered image into blender and use internal blender openGL API to compute irradiance, create reflectance level and pack final data in textures sheet for fast integration. Data are exported as JSON and PNG texture sheet, one for each probe
 
+Irradiance computing is based on Diffuse Irradiance Volume opengl implementation from  [https://learnopengl.com/PBR/IBL/Diffuse-irradiance](Learn OpenGL).
+
+Reflection computing is based on IBL Volume implementation from [https://learnopengl.com/PBR/IBL/Specular-IBL](Learn OpenGL) implementation.
+
+Global environment map is based on a mix of both algorithm.
+
+### Probes image format
+
+2 format are used for probes data
+
+#### HDR : Open EXR
+16Bits per channel HDR image are used for rendering and packed data
+Rendered and packed as open exr (mono layer) file
+
+### SDR : PNG
+8Bits per channel SDR image are used for rendering and packed data
+Rendered and packed as png file with global exposure settings
 
 ### Scene probes data
 
@@ -82,69 +107,123 @@ Rendered probes attributed are saved in a json file (probes.json) with a commmon
 
 ```json
 [
+    // Global
+    {
+        "type": "global",
+        "position": [
+            0.0,
+            5.0,
+            -0.0
+        ],
+        "clip_start": 0.800000011920929,
+        "clip_end": 80.0,
+        "file": "Global probe.png"
+    },
     // Irradiance
     {
-        "name": "IrradianceVolume",
-        "file": "IrradianceVolume_packed.png",
-        "cubemap_size": 32,
+        "name": "IrradianceVolume N",
+        "file": "IrradianceVolume N_packed.png",
+        "cubemap_size": 64,
         "texture_size": 2048,
         "type": "irradiance",
         "position": [
             0.0,
-            0.0,
-            5.0
+            5.0,
+            -7.051239490509033
         ],
         "scale": [
-            14.5,
-            14.5,
-            5.0
+            14.094822883605957,
+            6.012429237365723,
+            6.948479175567627
         ],
-
-        // probe type specific data
+        "clip_start": 0.0010000000474974513,
+        "clip_end": 20.0,
+        "baked_objects": [
+            "east-wall",
+            "floor",
+            "north-int-wall",
+            "north-wall",
+            "south-int-wall",
+            "south-wall",
+            "west-cube.001",
+            "west-cube.002",
+            "Suzanne",
+            "Suzanne.001",
+            "Suzanne.002",
+            "Suzanne.003",
+            "west--wall",
+            "west-cube",
+            "pillar NE",
+            "pillar SE",
+            "pillar SW",
+            "pillar NW"
+        ],
         "data": {
             "falloff": 1.0,
             "resolution": [
-                5,
-                5,
+                4,
+                2,
                 2
             ],
-            "clip_start": 0.009999999776482582,
-            "clip_end": 40.0
+            "influence_distance": 0.20000004768371582
         }
     },
 
     // Reflection
     {
-        "name": "ReflectionCubemap",
-        "file": "ReflectionCubemap_packed.png",
-        "cubemap_size": 512,
+        "name": "ReflectionCubemap N",
+        "file": "ReflectionCubemap N_packed.png",
+        "cubemap_size": 256,
         "texture_size": 2048,
         "type": "reflection",
         "position": [
             0.0,
-            0.0,
-            5.0
+            5.0,
+            -8.0
         ],
         "scale": [
             1.0,
             1.0,
             1.0
         ],
-
-        // probe type  specific data
+        "baked_objects": [
+            "east-wall",
+            "floor",
+            "north-int-wall",
+            "north-wall",
+            "south-int-wall",
+            "south-wall",
+            "west-cube.001",
+            "west-cube.002",
+            "Suzanne",
+            "Suzanne.001",
+            "Suzanne.002",
+            "Suzanne.003",
+            "west--wall",
+            "west-cube",
+            "pillar NE",
+            "pillar SE",
+            "pillar SW",
+            "pillar NW"
+        ],
+        "clip_start": 0.800000011920929,
+        "clip_end": 20.0,
         "data": {
-            "start_roughness": 0.0,
-            "level_roughness": 0.25,
-            "nb_levels": 3,
+            "start_roughness": 0.05000000074505806,
+            "level_roughness": 0.800000011920929,
+            "end_roughness": 3.250000048428774,
+            "nb_levels": 4,
             "scale": [
                 1.0,
                 1.0,
                 1.0
             ],
-            "falloff": 0.10000000149011612,
-            "radius": 22.0
+            "falloff": 0.3314814865589142,
+            "influence_distance": 9.0,
+            "intensity": 1.0,
+            "influence_type": "ELIPSOID"
         }
-    }
+    },
 ]
 ```
 
@@ -160,11 +239,13 @@ This plugin is in its development phase, here is the list of milestones ordered 
 - [X] Complete scene Render operator
 - [X] Irradiance Cubemap packing
 - [X] Refletance Cubemap packing
+- [X] HDR / SDR format Support
+- [ ] Global environment map baking : In progress (see [Global environment](#global-environment))
 - [ ] SH irradiance packing
 - [ ] Asynchronous rendering + progress bar
 - [ ] Blender headless python command
 - [ ] Support of other data kind using blender bake system (eg. Ambiant occlusion)
-- [ ] HDR Support
+
 
 ## License
 

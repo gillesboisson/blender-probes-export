@@ -7,7 +7,7 @@ from ..helpers.poll import get_context_probes_names, is_exportable_grid_light_pr
 
 
 from ..compositing.irradiance import pack_irradiance_probe, pack_irradiance_probe_to_image
-from ..compositing.reflectance import pack_reflectance_probe, pack_reflectance_probe_to_image
+from ..compositing.reflectance import pack_reflectance_probe
 from ..compositing.global_probe import pack_global_probe
 
 from ..helpers.files import load_probe_json_render_data, render_cache_subdirectory_exists, save_scene_json_pack_data

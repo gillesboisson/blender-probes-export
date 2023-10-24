@@ -3,16 +3,17 @@ import gpu
 from gpu_extras.batch import batch_for_shader
 
 from gpu.types import *
+from .gpu import prepare_renderer_from_image,save_render
 from ..helpers.poll import get_context_probes_names
 
 
 from .shader import *
 from .pack import *
 
+from ..helpers.config import get_export_extension
 from ..helpers.files import (
     global_pano_file,
     load_probe_json_render_data,
-    save_probe_json_pack_data,
     save_scene_json_pack_data,
     global_probe_render_name,
 )
@@ -20,6 +21,8 @@ from ..helpers.files import (
 
 def pack_global_probe(context, prob_object=None):
     export_directory = context.scene.probes_export.export_directory_path
+    file_extension = get_export_extension(context)
+
 
     if prob_object == None:
         prob_object = context.object
@@ -48,24 +51,17 @@ def pack_global_probe(context, prob_object=None):
 
     shader = cubemap_shader
 
-
-    
     cached_probe_file = global_pano_file(
-        context.scene.probes_export.export_directory_path,
-        prob_object.name
-    )
-    map_image = bpy.data.images.load(cached_probe_file)
-    texture = gpu.texture.from_image(map_image)
-    
-
-    offscreen = GPUOffScreen(
-        width=texture_width, height=texture_height, format=texture.format
+        export_directory,
+        prob_object.name,
+        file_extension
     )
 
+    (gpuOffscreen, texture) = prepare_renderer_from_image(cached_probe_file, texture_width, texture_height)
 
-    with offscreen.bind():
-        fb = gpu.state.active_framebuffer_get()
-        fb.clear(color=(0.0, 0.0, 0.0, 0.0))
+    with gpuOffscreen.bind():
+        framebuffer = gpu.state.active_framebuffer_get()
+        framebuffer.clear(color=(0.0, 0.0, 0.0, 0.0))
 
         uvs = get_cubemap_pack_uvs(
             cubemap_size, 0, nb_maps, max_texture_size, nb_face_x, nb_face_y
@@ -85,42 +81,12 @@ def pack_global_probe(context, prob_object=None):
 
         batch.draw(shader)
 
-        bpy.data.images.remove(map_image)
-
-        buffer = fb.read_color(0, 0, texture_width, texture_height, 4, 0, "FLOAT")
-        # buffer = fb.read_color(0,0,texture_width,texture_height,4,0,'UBYTE')
-
-
-
-    offscreen.free()
-    # context.scene.render.image_settings.file_format = 'PNG'
-    context.scene.render.image_settings.file_format = 'OPEN_EXR'
-    image_name = global_probe_render_name
-
-    if image_name in bpy.data.images:
-        bpy.data.images.remove(bpy.data.images[image_name])
-    
-    bpy.data.images.new(image_name, texture_width, texture_height, alpha=False, float_buffer=True)
+        save_render(context,framebuffer, texture_width,texture_height,global_probe_render_name)
 
     
-    image = bpy.data.images[image_name]
-    image.file_format = 'OPEN_EXR'
-    image.scale(texture_width, texture_height)
-    buffer.dimensions = texture_width * texture_height * 4
-    image.pixels = buffer
-    # image.pixels = [v / 255 for v in buffer]
-    
-    output_file_path = export_directory + "/" + image_name + ".exr"
-    # output_file_path = export_directory + "/" + image_name + ".png"
-    image.save_render(output_file_path)
-
-    # copy render cache hdr to export directory
-    # cached_probe = global_pano_file(context.scene.probes_export.export_directory_path)
-    # os.popen('cp "' + cached_probe + '" "' + export_directory + '"')
+    gpuOffscreen.free()
 
     probe_names = get_context_probes_names(context)
-
-
     save_scene_json_pack_data(export_directory, probe_names)
-
+    
     return data
