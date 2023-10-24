@@ -24,9 +24,9 @@ All rendered objects are exported in probe baked_objects property
 
 Cumpute phase  load renderered image into blender and use internal blender openGL API to compute irradiance, create reflectance level and pack final data in textures sheet for fast integration. Data are exported as JSON and PNG texture sheet, one for each probe
 
-Irradiance computing is based on Diffuse Irradiance Volume opengl implementation from  [https://learnopengl.com/PBR/IBL/Diffuse-irradiance](Learn OpenGL).
+Irradiance computing is based on Diffuse Irradiance Volume opengl implementation from  [Learn OpenGL](https://learnopengl.com/PBR/IBL/Diffuse-irradiance) implementation.
 
-Reflection computing is based on IBL Volume implementation from [https://learnopengl.com/PBR/IBL/Specular-IBL](Learn OpenGL) implementation.
+Reflection computing is based on IBL Volume implementation from [Learn OpenGL](https://learnopengl.com/PBR/IBL/Specular-IBL) implementation.
 
 Global environment map is based on a mix of both algorithm.
 
