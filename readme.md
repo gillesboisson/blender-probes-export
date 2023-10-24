@@ -73,6 +73,13 @@ Scene probes data are exported in a folder defined by user, in scene probes expo
             
 
 #### image
+
+Baked example is based on [this scene](./doc/example-scenes/baking-probs.blend)
+
+
+![Example](./doc/images/scene-example.png)
+
+
 ##### Irradiance
 
 For each irradiance grid cell, a panoramic equirectangle is baked and saved in a png file
