@@ -1,7 +1,7 @@
 
 import bpy
 
-from .scene_settings_panel import SceneSettingsPanel, SceneIrradianceSettingsPanel, SceneReflectionSettingsPanel
+from .scene_settings_panel import SceneGlobalEnvSettingsPanel, SceneSettingsPanel, SceneIrradianceSettingsPanel, SceneReflectionSettingsPanel
 from .probe_settings_panel import ProbeSettingsPanel
 
 from .object_probe_render_panel import ObjectProbeRenderPanel
@@ -12,7 +12,7 @@ classes = (
     # sub panels
     SceneIrradianceSettingsPanel,
     SceneReflectionSettingsPanel,
-
+    SceneGlobalEnvSettingsPanel,
     # object panels
     ObjectProbeRenderPanel,
 )

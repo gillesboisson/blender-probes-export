@@ -87,15 +87,15 @@ def print_render_progress(text, progress_min=0, progress_max=1, progress: float 
 def render_pano_global_probe(context, operator, object, progress_min=0, progress_max=1):
     prob_object = object
     prob = prob_object.data
-    settings = prob.probes_export
+    props = context.scene.probes_export
 
     transform: Matrix = prob_object.matrix_world
 
     camera = create_pano_camera(context)
     export_directory = context.scene.probes_export.export_directory_path
     file_extension = get_export_extension(context)
-    samples_max = settings.global_samples_max
-    height = settings.global_map_size
+    samples_max = props.global_samples_max
+    height = props.global_map_size
 
     if export_directory == "":
         # warn user
@@ -108,12 +108,15 @@ def render_pano_global_probe(context, operator, object, progress_min=0, progress
     catched_exception = None
 
     result_data = {
+        "name": prob_object.name,
         "type": "global",
         "position": [
             transform.translation.x,
             transform.translation.z,
             -transform.translation.y,
         ],
+        "scale": [1,1,1],
+        "rotation": [0, 0, 0],
         "clip_start": prob.clip_start,
         "clip_end": prob.clip_end,
     }
@@ -196,6 +199,7 @@ def render_pano_reflection_probe(
             -transform.translation.y,
         ],
         "scale": transform.to_scale().to_tuple(),
+        "rotation": [0, 0, 0],
         "falloff": prob_object.data.falloff,
         "intensity": prob.intensity,
         "influence_type": prob.influence_type,
@@ -298,6 +302,7 @@ def render_cubemap_reflection_probe(
             -transform.translation.y,
         ],
         "scale": transform.to_scale().to_tuple(),
+        "rotation": [0, 0, 0],
         "falloff": prob.falloff,
         "intensity": prob.intensity,
         "resolution": [
@@ -399,6 +404,7 @@ def render_pano_irradiance_probe(
 
     translation_tupple = transform.translation.to_tuple()
     scale_tupple = transform.to_scale().to_tuple()
+    rotation_euler = transform.to_euler()
 
     result_data = {
         "type": "pano",
@@ -412,6 +418,7 @@ def render_pano_irradiance_probe(
             -translation_tupple[1],
         ],
         "scale": [scale_tupple[0], scale_tupple[2], scale_tupple[1]],
+        "rotation": [rotation_euler.x, rotation_euler.z, -rotation_euler.y],
         "falloff": prob.falloff,
         "resolution": [
             prob.grid_resolution_x,

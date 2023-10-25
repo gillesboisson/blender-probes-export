@@ -67,23 +67,14 @@ def pack_irradiance_cubemap(
             
 
 
-        save_render(context,framebuffer, texture_width,texture_height,name)
+        packed_info = save_render(context,framebuffer, texture_width,texture_height,name)
 
     
 
     
     gpuOffscreen.free()
 
-    # if not image_name in bpy.data.images:
-    #     bpy.data.images.new(image_name, texture_width, texture_height)
-
-    # image = bpy.data.images[image_name]
-    # image.scale(texture_width, texture_height)
-
-    # buffer.dimensions = texture_width * texture_height * 4
-    # image.pixels = [v / 255 for v in buffer]
-
-    # image.save_render(output_file_path)
+    return packed_info
 
 
 def pack_irradiance_probe_to_image(context, data, cubemap_size, max_texture_size = 1024):
@@ -110,6 +101,7 @@ def pack_irradiance_probe_to_image(context, data, cubemap_size, max_texture_size
         'texture_size': max_texture_size,
         'type': 'irradiance',
         'position': data['position'],
+        'rotation': data['rotation'],
         'scale': data['scale'],
         'clip_start': data['clip_start'],
         'clip_end': data['clip_end'],

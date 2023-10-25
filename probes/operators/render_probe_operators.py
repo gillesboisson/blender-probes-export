@@ -102,7 +102,7 @@ class RenderProbes(BaseRenderProbe):
         progress_max = 0
 
         for object in bpy.data.objects:
-            if object.type == 'LIGHT_PROBE':
+            if object.type == 'LIGHT_PROBE' and object.data.probes_export.enable_export:
                 if object.data.type == 'CUBEMAP' or object.data.type == 'GRID':
                     probes.append(object)
                     progress_max += 1

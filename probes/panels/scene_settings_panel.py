@@ -1,6 +1,47 @@
 import bpy
 
 
+class SceneGlobalEnvSettingsPanel(bpy.types.Panel):
+    bl_idname = 'VIEW3D_PT_probes_export_scene_global_env_settings'
+    bl_parent_id = 'VIEW3D_PT_probes_export_scene_settings'
+    bl_label = 'Global environment cubmaps'
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = "output"
+
+    def draw(self, context):
+        scene = context.scene
+        props = scene.probes_export
+
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False
+        
+        
+        col = layout.column()
+        col.separator(factor=2)
+
+        col.prop(props, 'global_map_size')
+        col.prop(props, 'global_samples_max')
+        
+        col = layout.column()
+
+        col.separator(factor=2)
+        row = col.row()
+        row.label(text="Irradiance")
+
+        col.prop(props, 'global_irradiance_export_map_size', text = "Cubemap size")
+        col.prop(props, 'global_irradiance_max_texture_size', text = "Max final texture size")
+        
+        col.separator(factor=2)
+        row = col.row()
+        row.label(text="Reflectance")
+        col.prop(props, 'global_reflectance_export_map_size', text = "Cubemap size")
+        col.prop(props, 'global_reflectance_max_texture_size', text = "Max final texture size")
+        col.prop(props, 'global_reflectance_nb_levels', text = "Levels amount")
+        col.prop(props, 'global_reflectance_start_roughness', text = "Start roughness")
+        col.prop(props, 'global_reflectance_level_roughness', text = "Roughness step")
+
 class SceneReflectionSettingsPanel(bpy.types.Panel):
     bl_idname = 'VIEW3D_PT_probes_export_scene_irradiance_settings'
     bl_parent_id = 'VIEW3D_PT_probes_export_scene_settings'

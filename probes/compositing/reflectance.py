@@ -62,7 +62,7 @@ def pack_reflectance_cubemap(
 
 
         for level in range(nb_levels):
-            roughness = start_roughness + level * level_roughness / nb_levels
+            roughness = start_roughness + level * level_roughness
 
             print("Roughness: " + str(roughness)+ " Level: " + str(level_roughness))
             
@@ -85,8 +85,10 @@ def pack_reflectance_cubemap(
             batch.draw(shader)
 
         
-        save_render(context,framebuffer, texture_width,texture_height,name)
+        packed_info = save_render(context,framebuffer, texture_width,texture_height,name)
     gpuOffscreen.free()
+
+    return packed_info
 
 
 def pack_reflectance_probe_to_image(
@@ -124,6 +126,7 @@ def pack_reflectance_probe_to_image(
         "type": "reflection",
         "position": data["position"],
         "scale": data["scale"],
+        "rotation": data["rotation"],
         "baked_objects": data["baked_objects"],
         "clip_start": data["clip_start"],
         "clip_end": data["clip_end"],

@@ -102,7 +102,9 @@ Final packed data is saved in a image file with all roughness level
 
 ##### Global environment
 
-A global environment map is also baked and saved in hdr file
+Global environment is a global probe which render pano and pack irradiance and reflection data in separate files.
+
+It use the same irradiance and reflection algorithm as other probes but with global settings define in scene or global settings panel
 
 TODO: create custom blender objet rather using reflectance probe
 It can be define through a blender reflection cubemap with Use as global probe environment option checked 
@@ -116,16 +118,23 @@ Rendered probes attributed are saved in a json file (probes.json) with a commmon
 [
     // Global
     {
+        "name": "Global probe",
         "type": "global",
         "position": [
             0.0,
             5.0,
             -0.0
         ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
         "clip_start": 0.800000011920929,
         "clip_end": 80.0,
-        "file": "Global probe.png"
-    },
+        "irradiance_file": "Global probe_irradiance_packed.png",
+        "reflectance_file": "Global probe.png"
+    }
     // Irradiance
     {
         "name": "IrradianceVolume N",
@@ -142,6 +151,11 @@ Rendered probes attributed are saved in a json file (probes.json) with a commmon
             14.094822883605957,
             6.012429237365723,
             6.948479175567627
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0
         ],
         "clip_start": 0.0010000000474974513,
         "clip_end": 20.0,
@@ -192,6 +206,11 @@ Rendered probes attributed are saved in a json file (probes.json) with a commmon
             1.0,
             1.0,
             1.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0
         ],
         "baked_objects": [
             "east-wall",
@@ -247,11 +266,11 @@ This plugin is in its development phase, here is the list of milestones ordered 
 - [X] Irradiance Cubemap packing
 - [X] Refletance Cubemap packing
 - [X] HDR / SDR format Support
-- [ ] Global environment map baking : In progress (see [Global environment](#global-environment))
-- [ ] SH irradiance packing
-- [ ] Asynchronous rendering + progress bar
+- [X] Global environment map baking
+- [ ] Improve UI,Asynchronous rendering, cache handling 
 - [ ] Blender headless python command
 - [ ] Support of other data kind using blender bake system (eg. Ambiant occlusion)
+- [ ] SH irradiance packing
 
 
 ## License

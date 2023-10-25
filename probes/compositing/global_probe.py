@@ -10,9 +10,13 @@ from ..helpers.poll import get_context_probes_names
 from .shader import *
 from .pack import *
 
+from .irradiance import pack_irradiance_cubemap
+from .reflectance import pack_reflectance_cubemap
+
 from ..helpers.config import get_export_extension
 from ..helpers.files import (
-    global_pano_file,
+    get_render_cache_subdirectory,
+    save_probe_json_pack_data,
     load_probe_json_render_data,
     save_scene_json_pack_data,
     global_probe_render_name,
@@ -22,6 +26,8 @@ from ..helpers.files import (
 def pack_global_probe(context, prob_object=None):
     export_directory = context.scene.probes_export.export_directory_path
     file_extension = get_export_extension(context)
+    props = context.scene.probes_export
+
 
 
     if prob_object == None:
@@ -31,62 +37,47 @@ def pack_global_probe(context, prob_object=None):
 
     if data == None:
         return None
+    
 
-    cubemap_size = 128
-    nb_maps = 1
-    max_texture_size = cubemap_size * 3
-    nb_face_x = 3
-    nb_face_y = 2
+    # pack irradiance cubemap
+    name = data['name']
+    final_export_directory = get_render_cache_subdirectory(export_directory,name)
+    source_file_path = final_export_directory + '/' +data["file"]
+    irradiance_filename = name + '_irradiance_packed'
 
-    (
-        texture_width,
-        texture_height,
-        nb_cluster_x,
-        nb_cluster_y,
-        cluster_width,
-        cluster_height,
-    ) = get_cubemap_pack_layout(
-        cubemap_size, nb_maps, max_texture_size, nb_face_x, nb_face_y
+    (final_irradiance_path,final_irradiance_filename) = pack_irradiance_cubemap(
+        context,
+        [source_file_path],
+        irradiance_filename,
+        props.global_irradiance_export_map_size,
+        props.global_irradiance_max_texture_size,
     )
 
-    shader = cubemap_shader
+    # pack reflectance cubemap
 
-    cached_probe_file = global_pano_file(
-        export_directory,
-        prob_object.name,
-        file_extension
-    )
-
-    (gpuOffscreen, texture) = prepare_renderer_from_image(cached_probe_file, texture_width, texture_height)
-
-    with gpuOffscreen.bind():
-        framebuffer = gpu.state.active_framebuffer_get()
-        framebuffer.clear(color=(0.0, 0.0, 0.0, 0.0))
-
-        uvs = get_cubemap_pack_uvs(
-            cubemap_size, 0, nb_maps, max_texture_size, nb_face_x, nb_face_y
-        )
-        map_normals = generate_cubemap_pack_normals(nb_maps)
-        map_indices = generate_cubemap_quad_indices()
-
-        shader.uniform_sampler("panorama", texture)
-
-        map_uvs = uvs[0]
-        batch: GPUBatch = batch_for_shader(
-            shader,
-            "TRIS",
-            {"position": map_uvs, "normal": map_normals},
-            indices=map_indices,
-        )
-
-        batch.draw(shader)
-
-        save_render(context,framebuffer, texture_width,texture_height,global_probe_render_name)
+    reflectance_filename = data['name'] + '_reflectance_packed'
 
     
-    gpuOffscreen.free()
+
+
+
+    (final_reflectance_path,final_reflectance_filename) = pack_reflectance_cubemap(
+        context,
+        source_file_path,
+        name,
+        props.global_reflectance_export_map_size,
+        props.global_reflectance_max_texture_size,
+        props.global_reflectance_start_roughness,
+        props.global_reflectance_level_roughness,
+        props.global_reflectance_nb_levels,
+    )
+    
+    data["irradiance_file"] = final_irradiance_filename
+    data["reflectance_file"] = final_reflectance_filename
+    del data["file"]
+
+    save_probe_json_pack_data(export_directory, name, data)
 
     probe_names = get_context_probes_names(context)
     save_scene_json_pack_data(export_directory, probe_names)
-    
     return data

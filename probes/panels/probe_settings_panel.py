@@ -42,6 +42,7 @@ class ProbeSettingsPanel(bpy.types.Panel):
 
         master_row.separator(factor=4)
 
+        global_props = context.scene.probes_export
 
         if not prop.is_global_probe:
             row = master_row.row(align=True)
@@ -91,8 +92,24 @@ class ProbeSettingsPanel(bpy.types.Panel):
             col = master_row.column()
             col.separator(factor=2)
 
-            col.prop(prop, 'global_map_size')
-            col.prop(prop, 'global_samples_max')
+            col.prop(global_props, 'global_map_size')
+            col.prop(global_props, 'global_samples_max')
+
+            col.separator(factor=2)
+            row = col.row()
+            row.label(text="Irradiance")
+
+            col.prop(global_props, 'global_irradiance_export_map_size', text = "Cubemap size")
+            col.prop(global_props, 'global_irradiance_max_texture_size', text = "Max final texture size")
+
+            col.separator(factor=2)
+            row = col.row()
+            row.label(text="Reflectance")
+            col.prop(global_props, 'global_reflectance_export_map_size', text = "Cubemap size")
+            col.prop(global_props, 'global_reflectance_max_texture_size', text = "Max final texture size")
+            col.prop(global_props, 'global_reflectance_nb_levels', text = "Levels amount")
+            col.prop(global_props, 'global_reflectance_start_roughness', text = "Start roughness")
+            col.prop(global_props, 'global_reflectance_level_roughness', text = "Roughness step")
 
             
 

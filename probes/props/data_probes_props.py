@@ -9,8 +9,8 @@ class ProbeExportSettingsProps(bpy.types.PropertyGroup):
     enable_export: BoolProperty(name="Enable", default=True)
     is_global_probe: BoolProperty(name="Global environment", default=False)
 
-    global_map_size: IntProperty(name="Map size", default=512)
-    global_samples_max: IntProperty(name="Samples max", default=128)
+
+
 
 
     use_default_settings: BoolProperty(name="Use default settings", default=True)
