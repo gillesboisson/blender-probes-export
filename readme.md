@@ -117,7 +117,7 @@ Rendered probes attributed are saved in a json file (probes.json) with a commmon
 ```json
 [
     // Global
-    {
+     {
         "name": "Global probe",
         "type": "global",
         "position": [
@@ -125,16 +125,28 @@ Rendered probes attributed are saved in a json file (probes.json) with a commmon
             5.0,
             -0.0
         ],
-        "rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
         "clip_start": 0.800000011920929,
         "clip_end": 80.0,
+        "data": {
+            "map_size": 512,
+            "samples_max": 128,
+            "irradiance_export_map_size": 64,
+            "irradiance_max_texture_size": 2048,
+            "reflectance_export_map_size": 256,
+            "reflectance_max_texture_size": 2048,
+            "reflectance_nb_levels": 3,
+            "reflectance_start_roughness": 0.0,
+            "reflectance_level_roughness": 0.25
+        },
+        "baked_objects": [
+            "pillar NE",
+            "pillar SE",
+            "pillar SW",
+            "pillar NW"
+        ],
         "irradiance_file": "Global probe_irradiance_packed.png",
         "reflectance_file": "Global probe.png"
-    }
+    },
     // Irradiance
     {
         "name": "IrradianceVolume N",

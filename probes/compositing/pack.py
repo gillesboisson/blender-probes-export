@@ -39,19 +39,10 @@ def get_cubemap_pack_coords(cubemap_size, sub_level = 0,nb_cubemap = 1, max_text
         left = cluster_x * cluster_width
         top = cluster_y * cluster_height
         
-
-        
         left += cluster_width - cluster_width / sub_level_pow_2
         top += cluster_height - cluster_height / sub_level_pow_2
         
-
-            
-
-        
-        
         map_coords = []
-
-
 
         for face_ind in range(6):
             mapped_face_ind = face_map[face_ind]
@@ -108,6 +99,9 @@ def get_cubemap_pack_uvs(cubemap_size, sub_level = 0,nb_cubemap = 1, max_texture
             map_uvs.append((coord[1][0] / texture_width, coord[1][1] / texture_height))
             map_uvs.append((coord[2][0] / texture_width, coord[2][1] / texture_height))
             map_uvs.append((coord[3][0] / texture_width, coord[3][1] / texture_height))
+
+
+    
         
         uvs.append(map_uvs)
 

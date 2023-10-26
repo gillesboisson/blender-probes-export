@@ -53,14 +53,6 @@ def pack_global_probe(context, prob_object=None):
         props.global_irradiance_max_texture_size,
     )
 
-    # pack reflectance cubemap
-
-    reflectance_filename = data['name'] + '_reflectance_packed'
-
-    
-
-
-
     (final_reflectance_path,final_reflectance_filename) = pack_reflectance_cubemap(
         context,
         source_file_path,
@@ -77,7 +69,6 @@ def pack_global_probe(context, prob_object=None):
     del data["file"]
 
     save_probe_json_pack_data(export_directory, name, data)
-
     probe_names = get_context_probes_names(context)
     save_scene_json_pack_data(export_directory, probe_names)
     return data

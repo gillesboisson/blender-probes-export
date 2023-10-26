@@ -71,9 +71,20 @@ def reset_collection_visibility(context):
 
 def get_scene_renderered_object_names(context):
     objects = []
-    for ob in context.scene.objects:
-        if ob.type == "MESH" and ob.hide_render == False:
-            objects.append(ob.name)
+    
+    for collection in context.scene.collection.children_recursive:
+        if collection.hide_render == False:
+            for ob in collection.objects:
+                if ob.type == "MESH" and ob.hide_render == False:
+
+                    # as visibility is reset after check, this avoid having double object in list
+                    ob.hide_render = True
+                    objects.append(ob.name)
+
+
+    for ob in objects:
+        context.scene.objects[ob].hide_render = False
+
     return objects
 
 
@@ -115,10 +126,19 @@ def render_pano_global_probe(context, operator, object, progress_min=0, progress
             transform.translation.z,
             -transform.translation.y,
         ],
-        "scale": [1,1,1],
-        "rotation": [0, 0, 0],
         "clip_start": prob.clip_start,
         "clip_end": prob.clip_end,
+        "data": {
+            "map_size": props.global_map_size,
+            "samples_max": props.global_samples_max,
+            "irradiance_export_map_size": props.global_irradiance_export_map_size,
+            "irradiance_max_texture_size": props.global_irradiance_max_texture_size,
+            "reflectance_export_map_size": props.global_reflectance_export_map_size,
+            "reflectance_max_texture_size": props.global_reflectance_max_texture_size,
+            "reflectance_nb_levels": props.global_reflectance_nb_levels,
+            "reflectance_start_roughness": props.global_reflectance_start_roughness,
+            "reflectance_level_roughness": props.global_reflectance_level_roughness,
+        },
     }
 
     try:
@@ -142,7 +162,7 @@ def render_pano_global_probe(context, operator, object, progress_min=0, progress
 
         bpy.ops.render.render(write_still=True)
 
-        save_global_probe_json_render_data(export_directory, result_data)
+        
 
     except Exception as e:
         catched_exception = e
@@ -154,6 +174,10 @@ def render_pano_global_probe(context, operator, object, progress_min=0, progress
 
     if catched_exception != None:
         raise catched_exception
+
+    save_global_probe_json_render_data(export_directory, result_data)
+    
+   
 
     return result_data
 
