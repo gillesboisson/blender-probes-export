@@ -8,6 +8,13 @@ Probe export is done in 2 phases
 
 All Mesh Objects are by default rendered the first phase but can be ignored (eg. Dynamic object) using a custom rendered option in object probe export (TODO: integrate a switch in object structure panel if possible)
 
+### Integration example
+
+A three js demo app is available here [https://three-probes.dotify.eu/](https://three-probes.dotify.eu/) and source code is available [here](https://github.com/gillesboisson/threejs-probes-test). It support only debugging and probes interpolation, its final goal as three extension is to support baked scene rendering (probes, baked objects, dynamic objects).
+
+![threejs-probes-test](./doc/images/screen-2023-10-27.png)
+
+
 ### Rendering
 
 Rendering phase Use blender cycle renderer to render scene static object in reflectance cubemaps and panomic equi rectangle for each Irradiance Grid cell, final result is a png (HDR not supported yet) images for each probe
