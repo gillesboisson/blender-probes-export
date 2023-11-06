@@ -19,7 +19,6 @@ from ..helpers.files import (
     save_probe_json_pack_data,
     load_probe_json_render_data,
     save_scene_json_pack_data,
-    global_probe_render_name,
 )
 
 
@@ -33,7 +32,7 @@ def pack_global_probe(context, prob_object=None):
     if prob_object == None:
         prob_object = context.object
 
-    data = load_probe_json_render_data(export_directory, global_probe_render_name)
+    data = load_probe_json_render_data(export_directory, prob_object.name)
 
     if data == None:
         return None
@@ -44,6 +43,7 @@ def pack_global_probe(context, prob_object=None):
     final_export_directory = get_render_cache_subdirectory(export_directory,name)
     source_file_path = final_export_directory + '/' +data["file"]
     irradiance_filename = name + '_irradiance_packed'
+    radiance_filename = name + '_radiance_packed'
 
     (final_irradiance_path,final_irradiance_filename) = pack_irradiance_cubemap(
         context,
@@ -56,7 +56,7 @@ def pack_global_probe(context, prob_object=None):
     (final_reflectance_path,final_reflectance_filename) = pack_reflectance_cubemap(
         context,
         source_file_path,
-        name,
+        radiance_filename,
         props.global_reflectance_export_map_size,
         props.global_reflectance_max_texture_size,
         props.global_reflectance_start_roughness,

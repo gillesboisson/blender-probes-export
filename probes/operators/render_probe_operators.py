@@ -12,7 +12,7 @@ from ..helpers.poll import is_exportable_light_probe
 
 from ..helpers.render import render_pano_reflection_probe, render_pano_irradiance_probe, reset_objects_render_settings, update_objects_settings_for_irradiance, update_objects_settings_for_reflection, render_pano_global_probe, update_objects_settings_for_global
 
-from ..helpers.files import clear_render_cache_subdirectory, render_cache_subdirectory_exists, clear_render_cache_directory, global_probe_render_name
+from ..helpers.files import clear_render_cache_subdirectory, render_cache_subdirectory_exists, clear_render_cache_directory
 
 class BaseRenderProbe(Operator):    
     def execute_reflection(self, context, object, progress_min = 0, progress_max = 1):
@@ -67,7 +67,7 @@ class ClearRenderProbeCache(Operator):
     def poll(cls, context):
         
         if context.object.data.probes_export.is_global_probe:
-            cache_name =  global_probe_render_name
+            cache_name =  context.object.name
         else:
             cache_name =  context.object.name
 
@@ -79,7 +79,7 @@ class ClearRenderProbeCache(Operator):
     def execute(self, context):
         
         if context.object.data.probes_export.is_global_probe:
-            cache_name =  global_probe_render_name
+            cache_name =  context.object.name
         else:
             cache_name =  context.object.name
 

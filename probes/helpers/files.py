@@ -8,7 +8,6 @@ probe_render_json_file = "rendered_probe.json"
 probe_pack_json_file = "packed_probe.json"
 final_probes_json_file = "probes.json"
 
-global_probe_render_name = "Global probe"
 
 
 def get_render_cache_directory(export_directory):
@@ -73,7 +72,7 @@ def global_pano_filename(name, extension):
 
 
 def global_pano_file(export_directory, name, extension):
-    dir = get_render_cache_subdirectory(export_directory, global_probe_render_name)
+    dir = get_render_cache_subdirectory(export_directory, name)
     return dir + "/" + global_pano_filename(name, extension)
 
 
@@ -86,8 +85,8 @@ def irradiance_file(export_directory, name, index_x, index_y, index_z, extension
     return dir + "/" + irradiance_filename(index_x, index_y, index_z, extension)
 
 
-def save_global_probe_json_render_data(export_directory, data):
-    dir = get_render_cache_subdirectory(export_directory, global_probe_render_name)
+def save_global_probe_json_render_data(export_directory,name,  data):
+    dir = get_render_cache_subdirectory(export_directory, name)
 
     with open(dir + "/" + probe_render_json_file, "w") as outfile:
         json.dump(data, outfile, indent=4)
@@ -123,8 +122,8 @@ def load_probe_json_pack_data(export_directory, name):
         return json.load(json_file)
 
 
-def load_global_probe_json_render_data(export_directory):
-    return load_probe_json_render_data(export_directory, global_probe_render_name)
+def load_global_probe_json_render_data(export_directory, name):
+    return load_probe_json_render_data(export_directory, name)
 
 
 def save_scene_json_pack_data(export_directory, probe_names):

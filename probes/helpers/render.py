@@ -175,7 +175,7 @@ def render_pano_global_probe(context, operator, object, progress_min=0, progress
     if catched_exception != None:
         raise catched_exception
 
-    save_global_probe_json_render_data(export_directory, result_data)
+    save_global_probe_json_render_data(export_directory, prob_object.name, result_data)
     
    
 

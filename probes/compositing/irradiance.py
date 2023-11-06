@@ -12,7 +12,7 @@ from .pack import *
 
 from .gpu import prepare_renderer, save_render
 
-from ..helpers.files import get_render_cache_subdirectory, load_probe_json_render_data, save_probe_json_pack_data, save_scene_json_pack_data,global_probe_render_name
+from ..helpers.files import get_render_cache_subdirectory, load_probe_json_render_data, save_probe_json_pack_data, save_scene_json_pack_data
 
 def pack_irradiance_cubemap(
         context,
