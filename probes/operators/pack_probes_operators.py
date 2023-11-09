@@ -45,7 +45,7 @@ class PackIrradianceProbe(BasePackProbe):
 
 class PackReflectionProbe(BasePackProbe):
     bl_idname = "probe.pack_relection"
-    bl_label = "Pack reflection probe"
+    bl_label = "Pack radiance probe"
     bl_description = ""
     bl_options = {"REGISTER"}
 
@@ -66,7 +66,7 @@ class PackReflectionProbe(BasePackProbe):
 
 class PackGlobalProbe(BasePackProbe):
     bl_idname = "probe.pack_global"
-    bl_label = "Pack global probe"
+    bl_label = "Pack default probe"
     bl_description = ""
     bl_options = {"REGISTER"}
 

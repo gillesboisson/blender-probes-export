@@ -8,7 +8,7 @@ from ..helpers.poll import is_exportable_light_probe
 class ProbeSettingsPanel(bpy.types.Panel):
 
     bl_idname = 'VIEW3D_PT_probes_export_settings'
-    bl_label = 'Export probe'
+    bl_label = 'GI bake'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = "data"
@@ -38,7 +38,9 @@ class ProbeSettingsPanel(bpy.types.Panel):
         master_row.active = prop.enable_export
 
         row = master_row.row()
-        row.prop(prop, 'is_global_probe', text='Use as global environment', icon='WORLD_DATA')
+
+        if data.type == 'CUBEMAP':
+            row.prop(prop, 'is_global_probe', text='Use as default probe', icon='WORLD_DATA')
 
         master_row.separator(factor=4)
 
@@ -100,39 +102,16 @@ class ProbeSettingsPanel(bpy.types.Panel):
             row.label(text="Irradiance")
 
             col.prop(global_props, 'global_irradiance_export_map_size', text = "Cubemap size")
-            col.prop(global_props, 'global_irradiance_max_texture_size', text = "Max final texture size")
+            col.prop(global_props, 'global_irradiance_max_texture_size', text = "Final texture max size")
 
             col.separator(factor=2)
             row = col.row()
             row.label(text="Reflectance")
             col.prop(global_props, 'global_reflectance_export_map_size', text = "Cubemap size")
-            col.prop(global_props, 'global_reflectance_max_texture_size', text = "Max final texture size")
+            col.prop(global_props, 'global_reflectance_max_texture_size', text = "Final texture max size")
             col.prop(global_props, 'global_reflectance_nb_levels', text = "Levels amount")
             col.prop(global_props, 'global_reflectance_start_roughness', text = "Start roughness")
             col.prop(global_props, 'global_reflectance_level_roughness', text = "Roughness step")
-
-            
-
-        
-
-                
-
-        # else:
-            
-        #     col = master_col.column()
-        #     if data.type == 'CUBEMAP':
-            
-        #         col.label(text="Map size: " + str(scene_settings.reflection_cubemap_default_map_size))
-        #         col.label(text="Samples max: " + str(scene_settings.reflection_cubemap_default_samples_max))
-        #         col.label(text="Cubemap face size: " + str(scene_settings.reflection_volume_default_export_map_size))
-        #         col.label(text="Max final texture size: " + str(scene_settings.reflection_volume_default_export_max_texture_size))
-        #         col.label(text="Irradiance levels amount: " + str(scene_settings.reflection_volume_default_export_nb_levels))
-        #         col.label(text="Start roughness: " + str(scene_settings.reflection_volume_default_export_start_roughness))
-        #         col.label(text="Roughness step: " + str(scene_settings.reflection_volume_default_export_level_roughness))
-        #     elif data.type == 'GRID':
-        #         col.label(text="Map size: " + str(scene_settings.irradiance_volume_default_render_map_size))
-        #         col.label(text="Samples max: " + str(scene_settings.irradiance_volume_default_samples_max))
-        #         col.label(text="Cubemap Map size: " + str(scene_settings.irradiance_volume_default_export_max_texture_size))
 
 
             

@@ -1,6 +1,6 @@
 # Blender probes export
 
-Blender probes is blender plugin allowing to precompute reflectance, indirect luminance from blender and export data for use in external engine. It is based on blender probes object (reflection cubemap and irradiance grid) which has been design for blender eevee internal engine but not allowing baked data export.
+Blender probes is blender plugin allowing to precompute reflectance, indirect luminance from blender and export data for use in external engine. It is based on blender probes object (radiance cubemap and irradiance grid) which has been design for blender eevee internal engine but not allowing baked data export.
 
 Probe export is done in 2 phases
 - Rendering : use Blender cycle engine tu render probes
@@ -33,7 +33,7 @@ Cumpute phase  load renderered image into blender and use internal blender openG
 
 Irradiance computing is based on Diffuse Irradiance Volume opengl implementation from  [Learn OpenGL](https://learnopengl.com/PBR/IBL/Diffuse-irradiance) implementation.
 
-Reflection computing is based on IBL Volume implementation from [Learn OpenGL](https://learnopengl.com/PBR/IBL/Specular-IBL) implementation.
+Radiance computing is based on IBL Volume implementation from [Learn OpenGL](https://learnopengl.com/PBR/IBL/Specular-IBL) implementation.
 
 Global environment map is based on a mix of both algorithm.
 
@@ -99,7 +99,7 @@ Final packed data is saved in a image file
 
 ##### Reflection
 
-For each reflection probe, a panoramic equirectangle is baked and saved in a image file
+For each radiance probe, a panoramic equirectangle is baked and saved in a image file
 
 ![pano.png](./doc/images/pano.png)
 
@@ -109,12 +109,12 @@ Final packed data is saved in a image file with all roughness level
 
 ##### Global environment
 
-Global environment is a global probe which render pano and pack irradiance and reflection data in separate files.
+Global environment is a global probe which render pano and pack irradiance and radiance data in separate files.
 
-It use the same irradiance and reflection algorithm as other probes but with global settings define in scene or global settings panel
+It use the same irradiance and radiance algorithm as other probes but with global settings define in scene or global settings panel
 
 TODO: create custom blender objet rather using reflectance probe
-It can be define through a blender reflection cubemap with Use as global probe environment option checked 
+It can be define through a blender radiance cubemap with Use as global probe environment option checked 
 
 #### Data structure
 
@@ -125,7 +125,7 @@ Rendered probes attributed are saved in a json file (probes.json) with a commmon
 [
     // Global
      {
-        "name": "Global probe",
+        "name": "Default probe",
         "type": "global",
         "position": [
             0.0,
@@ -209,7 +209,7 @@ Rendered probes attributed are saved in a json file (probes.json) with a commmon
         }
     },
 
-    // Reflection
+    // Radiance
     {
         "name": "ReflectionCubemap N",
         "file": "ReflectionCubemap N_packed.png",

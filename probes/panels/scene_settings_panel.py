@@ -4,10 +4,10 @@ import bpy
 class SceneGlobalEnvSettingsPanel(bpy.types.Panel):
     bl_idname = 'VIEW3D_PT_probes_export_scene_global_env_settings'
     bl_parent_id = 'VIEW3D_PT_probes_export_scene_settings'
-    bl_label = 'Global environment cubmaps'
+    bl_label = 'Default probe cubmaps'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
-    bl_context = "output"
+    bl_context = "render"
 
     def draw(self, context):
         scene = context.scene
@@ -45,10 +45,10 @@ class SceneGlobalEnvSettingsPanel(bpy.types.Panel):
 class SceneReflectionSettingsPanel(bpy.types.Panel):
     bl_idname = 'VIEW3D_PT_probes_export_scene_irradiance_settings'
     bl_parent_id = 'VIEW3D_PT_probes_export_scene_settings'
-    bl_label = 'Reflection cubemaps'
+    bl_label = 'Radiance cubemaps'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
-    bl_context = "output"
+    bl_context = "render"
 
     def draw(self, context):
         scene = context.scene
@@ -83,7 +83,7 @@ class SceneIrradianceSettingsPanel(bpy.types.Panel):
     bl_label = 'Irradiance cubemaps'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
-    bl_context = "output"
+    bl_context = "render"
 
     def draw(self, context):
         scene = context.scene
@@ -113,10 +113,10 @@ class SceneIrradianceSettingsPanel(bpy.types.Panel):
 class SceneSettingsPanel(bpy.types.Panel):
 
     bl_idname = 'VIEW3D_PT_probes_export_scene_settings'
-    bl_label = 'Probes export'
+    bl_label = 'GI bake'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
-    bl_context = "output"
+    bl_context = "render"
 
     @classmethod
     def poll(cls, context):

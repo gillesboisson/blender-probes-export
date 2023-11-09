@@ -7,7 +7,7 @@ from ..helpers.poll import is_exportable_light_probe
 
 class ObjectProbeRenderPanel(bpy.types.Panel):
     bl_idname = 'VIEW3D_PT_object_probe_render'
-    bl_label = 'Probes export'
+    bl_label = 'GI bake'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = "object"
@@ -17,10 +17,6 @@ class ObjectProbeRenderPanel(bpy.types.Panel):
     def poll(cls, context):
         return context.object and context.object.type == 'MESH'
     
-    # def draw_header(self, context: Context):
-    #     data = context.object
-    #     prop = data.probes_render
-    #     self.layout.prop(prop, 'static_object', text='')
 
     def draw(self, context):
         

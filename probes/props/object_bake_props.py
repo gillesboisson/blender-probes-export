@@ -8,9 +8,9 @@ from bpy.utils import register_class, unregister_class
 
 class ObjectProbesRenderProps(bpy.types.PropertyGroup):
     static_object: BoolProperty(name="Enable", default=False)
-    render_by_reflection_probes: BoolProperty(name="Rendered by reflection probes", default=True)
+    render_by_reflection_probes: BoolProperty(name="Rendered by radiance probes", default=True)
     render_by_irradiance_probes: BoolProperty(name="Rendered by irradiance probes", default=True)
-    render_by_global_probe: BoolProperty(name="Rendered by global environment", default=False)
+    render_by_global_probe: BoolProperty(name="Rendered by default environment", default=False)
     
 
 classes = (

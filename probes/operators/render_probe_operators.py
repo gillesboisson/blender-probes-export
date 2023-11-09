@@ -59,7 +59,7 @@ class RenderProbe(BaseRenderProbe):
 
 class ClearRenderProbeCache(Operator):
     bl_idname = "probe.clear_cache"
-    bl_label = "Clear probe cache"
+    bl_label = "Clear probes cache"
     bl_description = ""
     bl_options = {"REGISTER"}
 
@@ -91,7 +91,7 @@ class ClearRenderProbeCache(Operator):
 
 class RenderProbes(BaseRenderProbe):
     bl_idname = "probes.export"
-    bl_label = "Render all probe"
+    bl_label = "Bake all probes"
     bl_description = ""
     bl_options = {"REGISTER"}
 
@@ -133,7 +133,7 @@ class RenderProbes(BaseRenderProbe):
 
 class ClearProbeCacheDirectory(Operator):
     bl_idname = "probes.clear_main_cache_directory"
-    bl_label = "Clear cache"
+    bl_label = "Clear probes cache"
     bl_description = ""
     bl_options = {"REGISTER"}
 
