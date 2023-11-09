@@ -1,23 +1,29 @@
-# Blender probes export
+# Blender GI Bake
 
-Blender probes is blender plugin allowing to precompute reflectance, indirect luminance from blender and export data for use in external engine. It is based on blender probes object (radiance cubemap and irradiance grid) which has been design for blender eevee internal engine but not allowing baked data export.
+GI Bake is blender a plugin which precompute scene global illumination and export data as texture and json file. This includes :
+- multi roughness level radiance cubemaps based on blender eevee cubemap probes
+- irradiance cubemaps based on blender eevee irradiance probes
+- baked material lightmap based on blender bake system
 
-Probe export is done in 2 phases
-- Rendering : use Blender cycle engine tu render probes
-- Packing  : use Blender opengl API to compute irradiance and reflectance and pack data in texture sheet
 
-All Mesh Objects are by default rendered the first phase but can be ignored (eg. Dynamic object) using a custom rendered option in object probe export (TODO: integrate a switch in object structure panel if possible)
+**TBD**: All Mesh Objects are by default rendered the first phase but can be ignored (eg. Dynamic object) using a custom rendered option in object probe export (TODO: integrate a switch in object structure panel if possible)
 
-### Integration example
+## Integration example
 
 A three js demo app is available here [https://three-probes.dotify.eu/](https://three-probes.dotify.eu/) and source code is available [here](https://github.com/gillesboisson/threejs-probes-test). It support only debugging and probes interpolation, its final goal as three extension is to support baked scene rendering (probes, baked objects, dynamic objects).
 
 ![threejs-probes-test](./doc/images/screen-2023-10-27.png)
 
+## Probes
+
+Probes export is done in 2 phases
+- Rendering : use Blender cycle engine tu render probes
+- Packing  : use Blender opengl API to compute irradiance and reflectance and pack data in texture sheet
 
 ### Rendering
 
 Rendering phase Use blender cycle renderer to render scene static object in reflectance cubemaps and panomic equi rectangle for each Irradiance Grid cell, final result is a png (HDR not supported yet) images for each probe
+
 
 #### Visibility
 
@@ -274,22 +280,50 @@ Rendered probes attributed are saved in a json file (probes.json) with a commmon
 
 
 
-### Progress
+## Lightmap baking TBD
+
+Baking phase use blender bake system to bake material lightmap as blender images
+
+Material baking is done on 2 phases
+- Baking material lightmap (complete or indirect only) into images
+- Denoising baked images
+
+## Roadmap
 
 This plugin is in its development phase, here is the list of milestones ordered by priority 
+- [ ] Probes 
+    - [X] Irradiance probe render operator
+    - [X] Reflectance probe render operator
+    - [X] Object probe baking settings 
+    - [X] Complete scene Render operator
+    - [X] Irradiance Cubemap packing
+    - [X] Refletance Cubemap packing
+    - [X] HDR / SDR format Support
+    - [X] Global environment map baking
+    - [ ] SH irradiance packing (WebGL / ThreeJS instance rendering issue with cubemap)
+    - [ ] Radiance pano packing (WebGL / ThreeJS instance rendering issue with cubemap)
 
-- [X] Irradiance probe render operator
-- [X] Reflectance probe render operator
-- [X] Object probe baking settings 
-- [X] Complete scene Render operator
-- [X] Irradiance Cubemap packing
-- [X] Refletance Cubemap packing
-- [X] HDR / SDR format Support
-- [X] Global environment map baking
-- [ ] Improve UI,Asynchronous rendering, cache handling 
-- [ ] Blender headless python command
-- [ ] Support of other data kind using blender bake system (eg. Ambiant occlusion)
-- [ ] SH irradiance packing
+- [ ] lightmap baking
+    - [ ] Per material baking support
+    - [ ] Baked material generator
+    - [ ] Bake material operator
+    - [ ] GPU based denoiser
+    - [ ] Material exported data definition
+    - [ ] Material data packing
+
+- [ ] Probes and lightmap merge
+    - [ ] Common approach for static / dynamic objects (mesh, lights) definition between probes and lightmap and visibility setup
+    - [ ] Common data schema for probes and lightmap
+
+- [ ] Back burner features 
+    - [ ] Improve UI,Asynchronous rendering, probes cache handling 
+    - [ ] Blender headless python command
+    - [ ] Support of other data kind using blender bake system (eg. Ambiant occlusion)
+
+### Bugs
+- No global options for irradiance volumes
+- wrong progress percentage on render debug
+- invert visibility collection issue
 
 
 ## License
