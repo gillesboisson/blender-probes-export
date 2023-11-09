@@ -39,8 +39,8 @@ class SceneGlobalEnvSettingsPanel(bpy.types.Panel):
         col.prop(props, 'global_reflectance_export_map_size', text = "Cubemap size")
         col.prop(props, 'global_reflectance_max_texture_size', text = "Max final texture size")
         col.prop(props, 'global_reflectance_nb_levels', text = "Levels amount")
-        col.prop(props, 'global_reflectance_start_roughness', text = "Start roughness")
         col.prop(props, 'global_reflectance_level_roughness', text = "Roughness step")
+        col.prop(props, 'global_reflectance_start_roughness', text = "Start roughness")
 
 class SceneReflectionSettingsPanel(bpy.types.Panel):
     bl_idname = 'VIEW3D_PT_probes_export_scene_irradiance_settings'

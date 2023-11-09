@@ -30,8 +30,8 @@ class ProbeExportSceneSettingsProps(bpy.types.PropertyGroup):
     global_irradiance_max_texture_size: IntProperty(name="Irradiance max final texture size", default=2048)    
     global_reflectance_export_map_size: IntProperty(name="Reflectance Cubemap size", default=512)
     global_reflectance_max_texture_size: IntProperty(name="Reflectance texture max size", default=2048)
-    global_reflectance_nb_levels: IntProperty(name="Reflectance levels amount", default=1,  min=1, max=4)
     global_reflectance_start_roughness: FloatProperty(name="Start roughness", default=0.25, min=0.0, max=1.0)
+    global_reflectance_nb_levels: IntProperty(name="Roughness levels", default=1,  min=1, max=4)
     global_reflectance_level_roughness: FloatProperty(name="Roughness step", description="Roughness step increase in each level", default=0.25 , min=0.1, max=1.0)
 
     # render props
