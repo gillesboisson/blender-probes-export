@@ -3,7 +3,7 @@
 
 ## Probes volumes
 
-Probes setup is based on blender eevee implementation.
+Probes setup is based on blender eevee implementation and GI Bake custom settings.
 
 
 ### Visibility
@@ -12,7 +12,7 @@ Visibility is defined
 - in object level : Object Properties > GI Bake > Rendered By **. It specifies which probes volume type will render the object. 
 - in probes volume level : Object data > probe > visibility. It specifies which view collection is visible (Eevee implementation). 
 
-!! Bias, Bleed Bias and Blur are supported by the plugin. More details on Irradiance sampling.
+!! Bias, Bleed Bias and Blur note are supported by the plugin. Feature is reimplemented in the plugin : More details on [Compute and packing](../readme.md#compute-and-packing).
 
 ### Intensity
 
