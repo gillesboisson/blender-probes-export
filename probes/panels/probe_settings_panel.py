@@ -40,7 +40,7 @@ class ProbeSettingsPanel(bpy.types.Panel):
         row = master_row.row()
 
         if data.type == 'CUBEMAP':
-            row.prop(prop, 'is_global_probe', text='Use as default probe', icon='WORLD_DATA')
+            row.prop(prop, 'is_global_probe', text='Use as default probe')
 
         master_row.separator(factor=4)
 

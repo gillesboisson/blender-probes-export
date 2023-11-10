@@ -46,7 +46,7 @@ def update_objects_settings_for_global(context):
 def update_collection_visibility_for_probe(collection, probe_data):
     visibility_collection = probe_data.visibility_collection
     invert_visibility = probe_data.invert_visibility_collection
-    hasVisible = False
+    hasHiddenChild = False
     for child in collection:
         if child == visibility_collection:
             child.hide_render = invert_visibility
@@ -57,12 +57,13 @@ def update_collection_visibility_for_probe(collection, probe_data):
                 child.children, probe_data
             )
 
-        hasVisible = hasVisible or invert_visibility
+        hasHiddenChild = hasHiddenChild and child.hide_render
 
-    return hasVisible
+    return hasHiddenChild
 
 
 def reset_collection_visibility(context):
+    
     collections = context.scene.collection.children_recursive
 
     for collection in collections:
