@@ -4,7 +4,7 @@ import bpy
 from bpy.types import Operator
 
 
-class RenderBatch:
+class BatchRenderer:
     # Define some variables to register
     _timer = None
     nb_shots = 0
@@ -21,16 +21,16 @@ class RenderBatch:
     __defaultRenderBatch = None
 
     @classmethod
-    def getDefault(cls) -> "RenderBatch":
-        if RenderBatch.__defaultRenderBatch is None:
-            RenderBatch.__defaultRenderBatch = RenderBatch()
-        return RenderBatch.__defaultRenderBatch
+    def getDefault(cls) -> "BatchRenderer":
+        if BatchRenderer.__defaultRenderBatch is None:
+            BatchRenderer.__defaultRenderBatch = BatchRenderer()
+        return BatchRenderer.__defaultRenderBatch
     
     @classmethod
     def disposeDefault(cls):
-        if RenderBatch.__defaultRenderBatch is not None:
-            RenderBatch.__defaultRenderBatch.reset()
-        RenderBatch.__defaultRenderBatch = None
+        if BatchRenderer.__defaultRenderBatch is not None:
+            BatchRenderer.__defaultRenderBatch.reset()
+        BatchRenderer.__defaultRenderBatch = None
 
     # Define the handler functions. I use pre and
     # post to know if Blender "is rendering"

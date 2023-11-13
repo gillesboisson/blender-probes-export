@@ -16,7 +16,7 @@ from .pack_probes_operators import (
     PackGlobalProbe,
 )
 
-from .multirender import RenderBatch
+from .multirender import BatchRenderer
 
 
 classes = (
@@ -34,13 +34,13 @@ classes = (
 
 
 def register_operators():
-    RenderBatch.getDefault()
+    BatchRenderer.getDefault()
     for cls in classes:
         register_class(cls)
 
 
 def unregister_operators():
-    RenderBatch.disposeDefault()
+    BatchRenderer.disposeDefault()
 
     for cls in reversed(classes):
         unregister_class(cls)

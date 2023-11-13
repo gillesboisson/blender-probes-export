@@ -33,7 +33,7 @@ from ..helpers.files import (
     save_probe_json_render_data,
 )
 
-from .multirender import RenderBatch
+from .multirender import BatchRenderer
 
 
 
@@ -46,12 +46,12 @@ class RenderReflectionProbeOperator(Operator, ReflectionProbeVolumeRenderer):
 
     @classmethod
     def poll(cls, context):
-        return is_exportable_reflection_light_probe(context)
+        return BatchRenderer.getDefault().available() and is_exportable_reflection_light_probe(context)
 
     def execute(self, context):
         self.setup_render_batch(context, self, context.object)
 
-        return RenderBatch.getDefault().execute(
+        return BatchRenderer.getDefault().execute(
             context,
             self,
             self.render_nb_probes,
@@ -64,7 +64,7 @@ class RenderReflectionProbeOperator(Operator, ReflectionProbeVolumeRenderer):
             renderState,
             shotIndex,
             nbShots,
-        ] = RenderBatch.getDefault().modal(context, event, self.setup_render)
+        ] = BatchRenderer.getDefault().modal(context, event, self.setup_render)
         if operatorResult == "CANCELLED":
             self.reset(context)
         elif operatorResult == "FINISHED":
@@ -82,12 +82,12 @@ class RenderIrradianceProbeOperator(Operator, IrradianceProbeVolumeRenderer):
 
     @classmethod
     def poll(cls, context):
-        return is_exportable_irradiance_light_probe(context)
+        return BatchRenderer.getDefault().available() and is_exportable_irradiance_light_probe(context)
 
     def execute(self, context):
         self.setup_render_batch(context, self, context.object)
 
-        return RenderBatch.getDefault().execute(
+        return BatchRenderer.getDefault().execute(
             context,
             self,
             self.render_nb_probes,
@@ -100,7 +100,7 @@ class RenderIrradianceProbeOperator(Operator, IrradianceProbeVolumeRenderer):
             renderState,
             shotIndex,
             nbShots,
-        ] = RenderBatch.getDefault().modal(context, event, self.setup_render)
+        ] = BatchRenderer.getDefault().modal(context, event, self.setup_render)
         if operatorResult == "CANCELLED":
             self.reset(context)
         elif operatorResult == "FINISHED":
@@ -118,12 +118,12 @@ class RenderDefaultProbeOperator(Operator, DefaultProbeVolumeRenderer):
 
     @classmethod
     def poll(cls, context):
-        return is_exportable_default_light_probe(context)
+        return BatchRenderer.getDefault().available() and is_exportable_default_light_probe(context) 
 
     def execute(self, context):
         self.setup_render_batch(context, self, context.object)
 
-        return RenderBatch.getDefault().execute(
+        return BatchRenderer.getDefault().execute(
             context,
             self,
             self.render_nb_probes,
@@ -136,7 +136,7 @@ class RenderDefaultProbeOperator(Operator, DefaultProbeVolumeRenderer):
             renderState,
             shotIndex,
             nbShots,
-        ] = RenderBatch.getDefault().modal(context, event, self.setup_render)
+        ] = BatchRenderer.getDefault().modal(context, event, self.setup_render)
         if operatorResult == "CANCELLED":
             self.reset(context)
         elif operatorResult == "FINISHED":
@@ -158,7 +158,9 @@ class RenderAllProbesOperator(Operator):
     __probes_renderers_nb_probes = None
     __current_renderer_index = 0
 
-   
+    @classmethod
+    def poll(cls, context):
+        return BatchRenderer.getDefault().available()
 
     def setup_render(self, context, shot_index, nb_shots):
         renderer = self.__probes_renderers[self.__current_renderer_index]
@@ -230,7 +232,7 @@ class RenderAllProbesOperator(Operator):
 
         total_nb_probes = probe_index
         if probe_index > 0:
-            return RenderBatch.getDefault().execute(
+            return BatchRenderer.getDefault().execute(
                 context,
                 self,
                 total_nb_probes,
@@ -251,7 +253,7 @@ class RenderAllProbesOperator(Operator):
             renderState,
             shotIndex,
             nbShots,
-        ] = RenderBatch.getDefault().modal(context, event, self.setup_render)
+        ] = BatchRenderer.getDefault().modal(context, event, self.setup_render)
         if operatorResult == "CANCELLED":
             self.reset(context)
         elif operatorResult == "FINISHED":
@@ -264,7 +266,7 @@ class RenderAllProbesOperator(Operator):
 
 class ClearRenderProbeCache(Operator):
     bl_idname = "probes_export.clear_cache"
-    bl_label = "Clear probes cache"
+    bl_label = "Clear volume cache"
     bl_description = ""
     bl_options = {"REGISTER"}
 

@@ -46,53 +46,49 @@ class ProbeSettingsPanel(bpy.types.Panel):
 
         global_props = context.scene.probes_export
 
-        # if not prop.is_global_probe:
-        row = master_row.row(align=True)
-        col = row.column()
-        # col.operator('probe.render', icon='RENDER_STILL')
-        if data.type == 'GRID':
-            col.operator('probes_export.render_irradiance', icon='RENDER_STILL')
+        if not prop.is_global_probe:
+            row = master_row.row(align=True)
             col = row.column()
-        elif data.type == 'CUBEMAP' :
-            if prop.is_global_probe:
-                col.operator('probes_export.render_default', icon='RENDER_STILL')
+            # col.operator('probe.render', icon='RENDER_RESULT')
+            if data.type == 'GRID':
+                col.operator('probes_export.render_irradiance', icon='RENDER_RESULT')
                 col = row.column()
-            else:
-                col.operator('probes_export.render_reflectance', icon='RENDER_STILL')
+            elif data.type == 'CUBEMAP' :
+                col.operator('probes_export.render_reflectance', icon='RENDER_RESULT')
                 col = row.column()
 
-           
-            col.operator('probes_export.clear_cache', icon='TRASH')
+            
+                col.operator('probes_export.clear_cache', icon='TRASH')
 
-            master_row.separator(factor=2)
+                master_row.separator(factor=2)
 
-            row = master_row.row()
-            row.prop(prop, 'use_default_settings')    
+                row = master_row.row()
+                row.prop(prop, 'use_default_settings')    
 
-            master_row = layout.column()
-            master_row.active = prop.enable_export and not prop.use_default_settings
+                master_row = layout.column()
+                master_row.active = prop.enable_export and not prop.use_default_settings
 
-            # if not prop.use_default_settings:
-            col = master_row.column()
-            col.prop(prop, 'map_size')
-            col.prop(prop, 'samples_max')
-
-            col.separator(factor=2)
-            col.prop(prop, 'export_map_size')
-            col.prop(prop, 'export_max_texture_size')
-
-            if data.type == 'CUBEMAP':
+                # if not prop.use_default_settings:
                 col = master_row.column()
-                
-                col.prop(prop, 'export_nb_levels')
-                col.prop(prop, 'export_level_roughness')
-                col.prop(prop, 'export_start_roughness')
+                col.prop(prop, 'map_size')
+                col.prop(prop, 'samples_max')
+
+                col.separator(factor=2)
+                col.prop(prop, 'export_map_size')
+                col.prop(prop, 'export_max_texture_size')
+
+                if data.type == 'CUBEMAP':
+                    col = master_row.column()
+                    
+                    col.prop(prop, 'export_nb_levels')
+                    col.prop(prop, 'export_level_roughness')
+                    col.prop(prop, 'export_start_roughness')
                 
         else:
 
             row = master_row.row(align=True)
             col = row.column()
-            col.operator('probe.render', icon='RENDER_STILL')
+            col.operator('probes_export.render_default', icon='RENDER_RESULT')
 
             col = row.column()
             col.operator('probes_export.clear_cache', icon='TRASH')

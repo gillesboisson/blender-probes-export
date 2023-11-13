@@ -147,7 +147,7 @@ class SceneSettingsPanel(bpy.types.Panel):
         col = layout.column()
         row = col.row(align=True)
         scol = row.column()
-        scol.operator('probes_export.render_all', icon='RENDER_STILL')
+        scol.operator('probes_export.render_all', icon='RENDER_RESULT')
         scol = row.column()
         scol.operator('probes_export.clear_main_cache_directory', icon='TRASH') #.export_path = prop.export_path
         
