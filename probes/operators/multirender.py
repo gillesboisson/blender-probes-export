@@ -35,12 +35,12 @@ class RenderBatch:
     # Define the handler functions. I use pre and
     # post to know if Blender "is rendering"
     def __preRender(self, scene, context=None):
-        print("Pre Render")
+        # print("Pre Render")
         if self.__renderState == "RENDER_STARTED":
             self.setRenderState("IN_PROGRESS")
 
     def __postRender(self, scene, context=None):
-        print("Post Render")
+        # print("Post Render")
         if self.__renderState == "IN_PROGRESS":
             self.setRenderState("RENDER_COMPLETE")
 
@@ -62,7 +62,7 @@ class RenderBatch:
         self.setRenderState("OFF")
 
     def __clearListenners(self, context):
-        print("> __clearListenners")
+        # print("> __clearListenners")
  
         try:
             bpy.app.handlers.render_init.remove(self.__preRender)
@@ -100,7 +100,7 @@ class RenderBatch:
         onRenderComplete=None,
         onStateChanged=None,
     ):
-        print("Executing RenderBatch")
+        # print("Executing RenderBatch")
         if not self.available():
             # warn user other rendering bactch is in progress
             operator.report({"WARNING"}, "Renderer not available")
@@ -131,7 +131,7 @@ class RenderBatch:
 
     def setRenderState(self, state):
         if state != self.__renderState:
-            print("Render State: " + state)
+            # print("Render State: " + state)
             self.__renderState = state
             if self.onStateChanged is not None:
                 self.onStateChanged(self.__renderState)
@@ -140,7 +140,7 @@ class RenderBatch:
         return self.__renderState
 
     def available(self):
-        return self.__renderState == "OFF"
+        return self.__renderState == "OFF" or self.__renderState == "CANCELLED"
     
     def modal(self, context, event, setupRenderDelegate):
         operatorResult = "PASS_THROUGH"
@@ -182,6 +182,7 @@ class RenderBatch:
                 self.__renderState == "BATCH_COMPLETE"
                 or self.__renderState == "CANCELLED"
             ):
+                bpy.ops.render.view_show()
                 self.setRenderState("OFF")
                 self.__clearListenners(context)
 

@@ -85,13 +85,6 @@ def irradiance_file(export_directory, name, index_x, index_y, index_z, extension
     return dir + "/" + irradiance_filename(index_x, index_y, index_z, extension)
 
 
-def save_global_probe_json_render_data(export_directory,name,  data):
-    dir = get_render_cache_subdirectory(export_directory, name)
-
-    with open(dir + "/" + probe_render_json_file, "w") as outfile:
-        json.dump(data, outfile, indent=4)
-    with open(dir + "/" + probe_pack_json_file, "w") as outfile:
-        json.dump(data, outfile, indent=4)
 
 
 def save_probe_json_render_data(export_directory, name, data):

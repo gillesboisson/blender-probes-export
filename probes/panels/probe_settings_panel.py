@@ -46,18 +46,23 @@ class ProbeSettingsPanel(bpy.types.Panel):
 
         global_props = context.scene.probes_export
 
-        if not prop.is_global_probe:
-            row = master_row.row(align=True)
+        # if not prop.is_global_probe:
+        row = master_row.row(align=True)
+        col = row.column()
+        # col.operator('probe.render', icon='RENDER_STILL')
+        if data.type == 'GRID':
+            col.operator('probes_export.render_irradiance', icon='RENDER_STILL')
             col = row.column()
-            col.operator('probe.render', icon='RENDER_STILL')
-            col = row.column()
-            if data.type == 'GRID':
-                col.operator('probe.pack_irradiance', icon='EXPORT')
-            elif data.type == 'CUBEMAP' :
-                col.operator('probe.pack_relection', icon='EXPORT')
+        elif data.type == 'CUBEMAP' :
+            if prop.is_global_probe:
+                col.operator('probes_export.render_default', icon='RENDER_STILL')
+                col = row.column()
+            else:
+                col.operator('probes_export.render_reflectance', icon='RENDER_STILL')
+                col = row.column()
 
-            col = row.column()
-            col.operator('probe.clear_cache', icon='TRASH')
+           
+            col.operator('probes_export.clear_cache', icon='TRASH')
 
             master_row.separator(factor=2)
 
@@ -90,7 +95,7 @@ class ProbeSettingsPanel(bpy.types.Panel):
             col.operator('probe.render', icon='RENDER_STILL')
 
             col = row.column()
-            col.operator('probe.clear_cache', icon='TRASH')
+            col.operator('probes_export.clear_cache', icon='TRASH')
 
             col = master_row.column()
             col.separator(factor=2)

@@ -1,13 +1,12 @@
 from bpy.utils import register_class, unregister_class
 
 from .render_probe_operators import (
-    RenderProbe,
-    RenderProbes,
     ClearRenderProbeCache,
     ClearProbeCacheDirectory,
     RenderReflectionProbeOperator,
     RenderIrradianceProbeOperator,
-    RenderDefaultProbeOperator
+    RenderDefaultProbeOperator,
+    RenderAllProbesOperator,
 )
 from .set_probes_export_directory import SetProbeExportDirectory
 
@@ -21,8 +20,6 @@ from .multirender import RenderBatch
 
 
 classes = (
-    RenderProbe,
-    RenderProbes,
     SetProbeExportDirectory,
     PackIrradianceProbe,
     PackReflectionProbe,
@@ -31,7 +28,8 @@ classes = (
     PackGlobalProbe,
     RenderReflectionProbeOperator,
     RenderIrradianceProbeOperator,
-    RenderDefaultProbeOperator
+    RenderDefaultProbeOperator,
+    RenderAllProbesOperator,
 )
 
 
