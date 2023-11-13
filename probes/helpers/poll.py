@@ -5,11 +5,14 @@ def is_exportable_light_probe(context):
     return context.object != None and context.object.type == 'LIGHT_PROBE' and (context.object.data.type == 'CUBEMAP' or context.object.data.type == 'GRID')
 
 
-def is_exportable_grid_light_probe(context):
+def is_exportable_irradiance_light_probe(context):
     return is_exportable_light_probe(context) and context.object.data.type == 'GRID'
 
 def is_exportable_reflection_light_probe(context):
-    return is_exportable_light_probe(context) and context.object.data.type == 'CUBEMAP'
+    return is_exportable_light_probe(context) and context.object.data.type == 'CUBEMAP' and context.object.data.probes_export.is_global_probe == False
+
+def is_exportable_default_light_probe(context):
+    return is_exportable_light_probe(context) and context.object.data.type == 'CUBEMAP' and context.object.data.probes_export.is_global_probe == True
 
 
 

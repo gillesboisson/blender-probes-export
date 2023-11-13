@@ -2,7 +2,7 @@
 from bpy.types import Operator
 import json
 
-from ..helpers.poll import get_context_probes_names, is_exportable_grid_light_probe, is_exportable_reflection_light_probe
+from ..helpers.poll import get_context_probes_names, is_exportable_irradiance_light_probe, is_exportable_reflection_light_probe
 
 
 
@@ -28,7 +28,7 @@ class PackIrradianceProbe(BasePackProbe):
 
     @classmethod
     def poll(cls, context):
-        return is_exportable_grid_light_probe(context) and render_cache_subdirectory_exists(
+        return is_exportable_irradiance_light_probe(context) and render_cache_subdirectory_exists(
             context.scene.probes_export.export_directory_path,
             context.object.name
         )

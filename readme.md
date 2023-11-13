@@ -321,9 +321,7 @@ This plugin is in its development phase, here is the list of milestones ordered 
     - [ ] Support of other data kind using blender bake system (eg. Ambiant occlusion)
 
 ### Bugs
-- No global options for irradiance volumes
 - wrong progress percentage on render debug
-- invert visibility collection issue
 
 
 ## License
