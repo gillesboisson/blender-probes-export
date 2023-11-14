@@ -6,7 +6,7 @@ from bpy.utils import register_class, unregister_class
 
 
 
-class ObjectProbesRenderProps(bpy.types.PropertyGroup):
+class BAKE_GI_object_props(bpy.types.PropertyGroup):
     static_object: BoolProperty(name="Enable", default=False)
     render_by_reflection_probes: BoolProperty(name="Rendered by radiance probes", default=True)
     render_by_irradiance_probes: BoolProperty(name="Rendered by irradiance probes", default=True)
@@ -14,16 +14,16 @@ class ObjectProbesRenderProps(bpy.types.PropertyGroup):
     
 
 classes = (
-    ObjectProbesRenderProps,
+    BAKE_GI_object_props,
 )
 
 def register_object_bake_props():
     for cls in classes:
         register_class(cls)
     
-    bpy.types.Object.probes_render = PointerProperty(type=ObjectProbesRenderProps)
+    bpy.types.Object.bake_gi = PointerProperty(type=BAKE_GI_object_props)
 def unregister_object_bake_props():
     for cls in reversed(classes):
         unregister_class(cls)
 
-    delattr(bpy.types.Object, 'probes_render')
+    delattr(bpy.types.Object, 'bake_gi')

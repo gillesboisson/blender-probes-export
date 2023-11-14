@@ -88,7 +88,6 @@ class Delaunay2D:
         """
         p = np.asarray(p)
         idx = len(self.coords)
-        # print("coords[", idx,"] ->",p)
         self.coords.append(p)
 
         # Search the triangle(s) whose circumcircle contains p

@@ -1,84 +1,34 @@
-from math import floor, pi
+from mathutils import Matrix
+from ..compositing import pack_irradiance_probe, pack_reflectance_probe, pack_global_probe
 
-from ..compositing.global_probe import pack_global_probe
-
-from ..compositing.reflectance import pack_reflectance_probe
-from ..compositing.irradiance import pack_irradiance_probe
-
-from .files import (
+from ..helpers.settings import set_pano_render_settings
+from ..helpers.config import get_export_extension
+from ..helpers.create import create_pano_camera, unlink_pano_camera
+from ..helpers.files import (
     get_or_create_render_cache_subdirectory,
+    global_pano_file,
+    global_pano_filename,
     irradiance_filename,
+    pano_file,
     pano_filename,
     save_probe_json_render_data,
 )
 
+from .helpers import (
+    get_scene_renderered_object_names,
+    reset_collection_visibility,
+    reset_objects_render_settings,
+    update_collection_visibility_for_probe,
+)
+
+from mathutils import Vector
+from math import floor, pi
+
+
 import os
-import bpy
-from mathutils import Matrix, Vector
-
-from .create import create_pano_camera, create_cube_camera, unlink_pano_camera
-from .settings import set_pano_render_settings, set_cube_render_settings
-
-from .files import pano_file, cubemap_filename, global_pano_filename, global_pano_file
-from .config import cube_map_face_names, cube_map_euler_rotations, get_export_extension
 
 
-def reset_objects_render_settings(context):
-    for ob in context.scene.objects:
-        if ob.type == "MESH":
-            ob.hide_render = False
-
-
-def update_collection_visibility_for_probe(collection, probe_data):
-    visibility_collection = probe_data.visibility_collection
-    invert_visibility = probe_data.invert_visibility_collection
-    hasHiddenChild = False
-    for child in collection:
-        if child == visibility_collection:
-            child.hide_render = invert_visibility
-        elif not child.children:
-            child.hide_render = not invert_visibility
-        else:
-            child.hide_render = update_collection_visibility_for_probe(
-                child.children, probe_data
-            )
-
-        hasHiddenChild = hasHiddenChild and child.hide_render
-
-    return hasHiddenChild
-
-
-def reset_collection_visibility(context):
-    collections = context.scene.collection.children_recursive
-
-    for collection in collections:
-        collection.hide_render = False
-
-
-def get_scene_renderered_object_names(context):
-    objects = []
-
-    for collection in context.scene.collection.children_recursive:
-        if collection.hide_render == False:
-            for ob in collection.objects:
-                if ob.type == "MESH" and ob.hide_render == False:
-                    # as visibility is reset after check, this avoid having double object in list
-                    ob.hide_render = True
-                    objects.append(ob.name)
-
-    for ob in objects:
-        context.scene.objects[ob].hide_render = False
-
-    return objects
-
-
-def print_render_progress(text, progress_min=0, progress_max=1, progress: float = 0):
-    print(
-        str(floor((progress_min + progress) / progress_max * 100)) + "%" + " :: " + text
-    )
-
-
-class ProbeVolumeRenderer:
+class Probe_volume_renderer:
     json_data = None
     probe_volume = None
     samples_max = 0
@@ -130,10 +80,10 @@ class ProbeVolumeRenderer:
         camera.data.clip_start = probe_volume_data.clip_start
         camera.data.clip_end = probe_volume_data.clip_end
 
-        export_directory = context.scene.probes_export.export_directory_path
+        export_directory = context.scene.bake_gi.export_directory_path
 
         if export_directory == "":
-            operator.report({"INFO"}, "No directory defined")
+            operator.report({"ERROR"}, "No probes export directory defined")
             return None
 
         if os.path.exists(export_directory) == False:
@@ -167,7 +117,7 @@ class ProbeVolumeRenderer:
         names = get_scene_renderered_object_names(context)
         self.json_data["baked_objects"] = names
 
-        export_directory = context.scene.probes_export.export_directory_path
+        export_directory = context.scene.bake_gi.export_directory_path
 
         save_probe_json_render_data(
             export_directory, self.probe_volume.name, self.json_data
@@ -179,57 +129,59 @@ class ProbeVolumeRenderer:
         pass
 
 
-class ReflectionProbeVolumeRenderer(ProbeVolumeRenderer):
+class Default_probe_volume_renderer(Probe_volume_renderer):
+    __current_render_filename = ""
+
     def init_json_data(self, context):
+        props = context.scene.bake_gi
+
         self.json_data = {
-            "type": "pano",
+            "name": self.probe_volume.name,
+            "type": "global",
             "position": [
                 self.object_transform.translation.x,
                 self.object_transform.translation.z,
                 -self.object_transform.translation.y,
             ],
-            "file": pano_filename(self.file_extension),
-            "baked_objects": get_scene_renderered_object_names(context),
-            "scale": self.object_transform.to_scale().to_tuple(),
-            "rotation": [0, 0, 0],
-            "falloff": self.probe_volume.data.falloff,
-            "intensity": self.probe_volume.data.intensity,
-            "influence_type": self.probe_volume.data.influence_type,
-            "influence_distance": self.probe_volume.data.influence_distance,
             "clip_start": self.probe_volume.data.clip_start,
             "clip_end": self.probe_volume.data.clip_end,
-            "probe_type": "reflection",
-            "name": self.probe_volume.name,
-            "width": self.height * 2,
-            "height": self.height,
+            "data": {
+                "map_size": props.global_map_size,
+                "samples_max": props.global_samples_max,
+                "irradiance_export_map_size": props.global_irradiance_export_map_size,
+                "irradiance_max_texture_size": props.global_irradiance_max_texture_size,
+                "reflectance_export_map_size": props.global_reflectance_export_map_size,
+                "reflectance_max_texture_size": props.global_reflectance_max_texture_size,
+                "reflectance_nb_levels": props.global_reflectance_nb_levels,
+                "reflectance_start_roughness": props.global_reflectance_start_roughness,
+                "reflectance_level_roughness": props.global_reflectance_level_roughness,
+            },
+            "file": global_pano_filename(self.probe_volume.name, self.file_extension),
+            "baked_objects": get_scene_renderered_object_names(context),
         }
 
     def setup_render_settings(self, context, probe_volume):
+        props = context.scene.bake_gi
+        self.samples_max = props.global_samples_max
+        self.height = props.global_map_size
 
-        
-        settings = probe_volume.data.probes_export
-        if settings.use_default_settings:
-            self.samples_max = (
-                context.scene.probes_export.reflection_cubemap_default_samples_max
-            )
-            self.height = (
-                context.scene.probes_export.reflection_cubemap_default_map_size
-            )
-        else:
-            self.samples_max = settings.samples_max
-            self.height = settings.map_size
+    def setup_render_batch(self, context, operator, probe_volume):
+        self.nb_probes = 1
+
+        for ob in context.scene.objects:
+            if ob.type == "MESH":
+                ob.hide_render = not ob.bake_gi.render_by_global_probe
+
+        return super().setup_render_batch(context, operator, probe_volume)
 
     def setup_render(self, context, probe_index, nb_probes):
-        export_directory = context.scene.probes_export.export_directory_path
-
-        self.camera.location = self.object_transform.translation
-        # self.camera.rotation_euler = self.object_transform.to_euler()
-        self.camera.rotation_euler.x = pi / 2
-
-        # get current file path
-        filepath = pano_file(
+        # res= super().setup_render(context, probe_index, nb_probes)
+        filepath = global_pano_file(
             self.export_directory, self.probe_volume.name, self.file_extension
         )
+
+        self.camera.location = self.object_transform.translation
+        self.camera.rotation_euler.x = pi / 2
 
         set_pano_render_settings(
             context,
@@ -239,23 +191,13 @@ class ReflectionProbeVolumeRenderer(ProbeVolumeRenderer):
             height=self.height,
         )
 
-    def setup_render_batch(self, context, operator, probe_volume):
-        for ob in context.scene.objects:
-            if ob.type == "MESH":
-                ob.hide_render = not ob.probes_render.render_by_reflection_probes
-
-        return super().setup_render_batch(context, operator, probe_volume)
-
-    def finalize_render(self, context, probe_index, nb_probes):
-        pass
-
     def finalize_render_batch(self, context, operator):
         super().finalize_render_batch(context, operator)
-        pack_reflectance_probe(context, self.probe_volume)
+        pack_global_probe(context, self.probe_volume)
         pass
 
 
-class IrradianceProbeVolumeRenderer(ProbeVolumeRenderer):
+class Irradiance_probe_volume_renderer(Probe_volume_renderer):
     __current_render_filename = ""
 
     def init_json_data(self, context):
@@ -290,12 +232,12 @@ class IrradianceProbeVolumeRenderer(ProbeVolumeRenderer):
         }
 
     def setup_render_settings(self, context, probe_volume):
-        settings = probe_volume.data.probes_export
+        settings = probe_volume.data.bake_gi
         if settings.use_default_settings:
             self.samples_max = (
-                context.scene.probes_export.irradiance_volume_default_samples_max
+                context.scene.bake_gi.irradiance_volume_default_samples_max
             )
-            self.height = context.scene.probes_export.irradiance_volume_default_map_size
+            self.height = context.scene.bake_gi.irradiance_volume_default_map_size
         else:
             self.samples_max = settings.samples_max
             self.height = settings.map_size
@@ -310,7 +252,7 @@ class IrradianceProbeVolumeRenderer(ProbeVolumeRenderer):
     def setup_render_batch(self, context, operator, probe_volume):
         for ob in context.scene.objects:
             if ob.type == "MESH":
-                ob.hide_render = not ob.probes_render.render_by_irradiance_probes
+                ob.hide_render = not ob.bake_gi.render_by_irradiance_probes
 
         return super().setup_render_batch(context, operator, probe_volume)
 
@@ -328,7 +270,6 @@ class IrradianceProbeVolumeRenderer(ProbeVolumeRenderer):
         ry = resolution_y - ry - 1  # inverted y for openGL axis conversion
         rz = floor(probe_index / resolution_y) % resolution_z
 
-        print(probe_index, rx, ry, rz)
 
         vz = (rz + 0.5) / resolution_z * 2 - 1
         vx = (rx + 0.5) / resolution_x * 2 - 1
@@ -367,60 +308,55 @@ class IrradianceProbeVolumeRenderer(ProbeVolumeRenderer):
         pass
 
 
-class DefaultProbeVolumeRenderer(ProbeVolumeRenderer):
-    __current_render_filename = ""
-
+class Reflection_probe_volume_renderer(Probe_volume_renderer):
     def init_json_data(self, context):
-        props = context.scene.probes_export
-
         self.json_data = {
-            "name": self.probe_volume.name,
-            "type": "global",
+            "type": "pano",
             "position": [
                 self.object_transform.translation.x,
                 self.object_transform.translation.z,
                 -self.object_transform.translation.y,
             ],
+            "file": pano_filename(self.file_extension),
+            "baked_objects": get_scene_renderered_object_names(context),
+            "scale": self.object_transform.to_scale().to_tuple(),
+            "rotation": [0, 0, 0],
+            "falloff": self.probe_volume.data.falloff,
+            "intensity": self.probe_volume.data.intensity,
+            "influence_type": self.probe_volume.data.influence_type,
+            "influence_distance": self.probe_volume.data.influence_distance,
             "clip_start": self.probe_volume.data.clip_start,
             "clip_end": self.probe_volume.data.clip_end,
-            "data": {
-                "map_size": props.global_map_size,
-                "samples_max": props.global_samples_max,
-                "irradiance_export_map_size": props.global_irradiance_export_map_size,
-                "irradiance_max_texture_size": props.global_irradiance_max_texture_size,
-                "reflectance_export_map_size": props.global_reflectance_export_map_size,
-                "reflectance_max_texture_size": props.global_reflectance_max_texture_size,
-                "reflectance_nb_levels": props.global_reflectance_nb_levels,
-                "reflectance_start_roughness": props.global_reflectance_start_roughness,
-                "reflectance_level_roughness": props.global_reflectance_level_roughness,
-            },
-            "file": global_pano_filename(self.probe_volume.name, self.file_extension),
-            "baked_objects": get_scene_renderered_object_names(context),
+            "probe_type": "reflection",
+            "name": self.probe_volume.name,
+            "width": self.height * 2,
+            "height": self.height,
         }
 
     def setup_render_settings(self, context, probe_volume):
-        props = context.scene.probes_export
-        self.samples_max = props.global_samples_max
-        self.height = props.global_map_size
-
-    def setup_render_batch(self, context, operator, probe_volume):
-        self.nb_probes = 1
-
-        for ob in context.scene.objects:
-            if ob.type == "MESH":
-                ob.hide_render = not ob.probes_render.render_by_global_probe
-
-        return super().setup_render_batch(context, operator, probe_volume)
+        settings = probe_volume.data.bake_gi
+        if settings.use_default_settings:
+            self.samples_max = (
+                context.scene.bake_gi.reflection_cubemap_default_samples_max
+            )
+            self.height = (
+                context.scene.bake_gi.reflection_cubemap_default_map_size
+            )
+        else:
+            self.samples_max = settings.samples_max
+            self.height = settings.map_size
 
     def setup_render(self, context, probe_index, nb_probes):
-        # res= super().setup_render(context, probe_index, nb_probes)
-        filepath = global_pano_file(
-            self.export_directory, self.probe_volume.name, self.file_extension
-        )
+        export_directory = context.scene.bake_gi.export_directory_path
 
         self.camera.location = self.object_transform.translation
+        # self.camera.rotation_euler = self.object_transform.to_euler()
         self.camera.rotation_euler.x = pi / 2
 
+        # get current file path
+        filepath = pano_file(
+            self.export_directory, self.probe_volume.name, self.file_extension
+        )
 
         set_pano_render_settings(
             context,
@@ -430,7 +366,17 @@ class DefaultProbeVolumeRenderer(ProbeVolumeRenderer):
             height=self.height,
         )
 
+    def setup_render_batch(self, context, operator, probe_volume):
+        for ob in context.scene.objects:
+            if ob.type == "MESH":
+                ob.hide_render = not ob.bake_gi.render_by_reflection_probes
+
+        return super().setup_render_batch(context, operator, probe_volume)
+
+    def finalize_render(self, context, probe_index, nb_probes):
+        pass
+
     def finalize_render_batch(self, context, operator):
         super().finalize_render_batch(context, operator)
-        pack_global_probe(context, self.probe_volume)
+        pack_reflectance_probe(context, self.probe_volume)
         pass

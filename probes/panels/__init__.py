@@ -1,20 +1,20 @@
 
 import bpy
 
-from .scene_settings_panel import SceneGlobalEnvSettingsPanel, SceneSettingsPanel, SceneIrradianceSettingsPanel, SceneReflectionSettingsPanel
-from .probe_settings_panel import ProbeSettingsPanel
+from .scene_settings_panel import BAKE_GI_PT_scene_default_probes_settings, BAKE_GI_PT_scene_settings, BAKE_GI_PT_scene_irradiance_probes_settings, BAKE_GI_PT_scene_reflection_probes_settings
+from .probe_settings_panel import BAKE_GI_PT_probe_settings
 
-from .object_probe_render_panel import ObjectProbeRenderPanel
+from .object_probe_render_panel import BAKE_GI_PT_object
 
 classes = (
-    SceneSettingsPanel,
-    ProbeSettingsPanel,
+    BAKE_GI_PT_scene_settings,
+    BAKE_GI_PT_probe_settings,
     # sub panels
-    SceneIrradianceSettingsPanel,
-    SceneReflectionSettingsPanel,
-    SceneGlobalEnvSettingsPanel,
+    BAKE_GI_PT_scene_irradiance_probes_settings,
+    BAKE_GI_PT_scene_reflection_probes_settings,
+    BAKE_GI_PT_scene_default_probes_settings,
     # object panels
-    ObjectProbeRenderPanel,
+    BAKE_GI_PT_object,
 )
 
 def register_panels():

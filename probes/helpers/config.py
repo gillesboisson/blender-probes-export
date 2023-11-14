@@ -60,13 +60,13 @@ for i in range(6):
 
 
 def get_export_extension(context):
-    if context.scene.probes_export.export_format == 'HDR':
+    if context.scene.bake_gi.export_format == 'HDR':
         return 'exr'
     else :
         return 'png'
 
 def get_export_format(context):
-    if context.scene.probes_export.export_format == 'HDR':
+    if context.scene.bake_gi.export_format == 'HDR':
         return 'OPEN_EXR'
     else :
         return 'PNG'

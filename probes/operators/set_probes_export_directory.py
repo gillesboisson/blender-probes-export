@@ -5,10 +5,11 @@ from bpy.props import StringProperty, BoolProperty
 from bpy_extras.io_utils import ExportHelper
 from bpy.types import Operator
 
+from ..helpers import get_export_extension
 
-class SetProbeExportDirectory(Operator, ExportHelper):
+class BAKE_GI_OP_set_probes_directory(Operator, ExportHelper):
 
-    bl_idname = "probes_export.set_export_directory"
+    bl_idname = "bake_gi.set_probes_directory"
     bl_label = "Set probes baking directory"
     
     filter_glob: StringProperty(
@@ -29,12 +30,8 @@ class SetProbeExportDirectory(Operator, ExportHelper):
 
     def execute(self, context):
         """Do something with the selected file(s)."""
-
         self.filepath = bpy.path.abspath(self.filepath)
         
-        print('Selected file:', self.filepath)
-        print('Selected directory:', self.directory)
-
-        context.scene.probes_export.export_directory_path = self.directory
+        context.scene.bake_gi.export_directory_path = self.directory
         
         return {'FINISHED'}

@@ -64,8 +64,6 @@ def pack_reflectance_cubemap(
         for level in range(nb_levels):
             roughness = start_roughness + level * level_roughness
 
-            print("Roughness: " + str(roughness)+ " Level: " + str(level_roughness))
-            
 
             shader.uniform_float("roughness", roughness)
 
@@ -147,27 +145,27 @@ def pack_reflectance_probe_to_image(
 
 
 def pack_reflectance_probe(context, prob_object=None):
-    export_directory = context.scene.probes_export.export_directory_path
+    export_directory = context.scene.bake_gi.export_directory_path
 
     if prob_object == None:
         prob_object = context.object
 
     prob = prob_object.data
-    settings = prob.probes_export
+    settings = prob.bake_gi
 
     if settings.use_default_settings:
-        map_size = context.scene.probes_export.reflection_volume_default_export_map_size
+        map_size = context.scene.bake_gi.reflection_volume_default_export_map_size
         export_max_texture_size = (
-            context.scene.probes_export.reflection_volume_default_export_max_texture_size
+            context.scene.bake_gi.reflection_volume_default_export_max_texture_size
         )
         export_nb_levels = (
-            context.scene.probes_export.reflection_volume_default_export_nb_levels
+            context.scene.bake_gi.reflection_volume_default_export_nb_levels
         )
         export_start_roughness = (
-            context.scene.probes_export.reflection_volume_default_export_start_roughness
+            context.scene.bake_gi.reflection_volume_default_export_start_roughness
         )
         export_level_roughness = (
-            context.scene.probes_export.reflection_volume_default_export_level_roughness
+            context.scene.bake_gi.reflection_volume_default_export_level_roughness
         )
 
     else:

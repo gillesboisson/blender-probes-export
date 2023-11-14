@@ -5,9 +5,9 @@ from ..helpers.poll import is_exportable_light_probe
 
 
 
-class ProbeSettingsPanel(bpy.types.Panel):
+class BAKE_GI_PT_probe_settings(bpy.types.Panel):
 
-    bl_idname = 'VIEW3D_PT_probes_export_settings'
+    bl_idname = 'BAKE_GI_PT_probe_settings'
     bl_label = 'GI bake'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
@@ -19,12 +19,12 @@ class ProbeSettingsPanel(bpy.types.Panel):
     
     def draw_header(self, context: Context):
         data = context.object.data
-        prop = data.probes_export
+        prop = data.bake_gi
         self.layout.prop(prop, 'enable_export', text='')
 
     def draw(self, context):
         data = context.object.data
-        prop = data.probes_export
+        prop = data.bake_gi
 
         layout = self.layout
         layout.use_property_split = True
@@ -32,7 +32,7 @@ class ProbeSettingsPanel(bpy.types.Panel):
         
         row = layout.row()
 
-        scene_settings = context.scene.probes_export
+        scene_settings = context.scene.bake_gi
 
         master_row = layout.column()
         master_row.active = prop.enable_export
@@ -44,54 +44,54 @@ class ProbeSettingsPanel(bpy.types.Panel):
 
         master_row.separator(factor=4)
 
-        global_props = context.scene.probes_export
+        global_props = context.scene.bake_gi
 
         if not prop.is_global_probe:
             row = master_row.row(align=True)
             col = row.column()
             # col.operator('probe.render', icon='RENDER_RESULT')
             if data.type == 'GRID':
-                col.operator('probes_export.render_irradiance', icon='RENDER_RESULT')
+                col.operator('bake_gi.render_irradiance_probes', icon='RENDER_RESULT')
                 col = row.column()
             elif data.type == 'CUBEMAP' :
-                col.operator('probes_export.render_reflectance', icon='RENDER_RESULT')
+                col.operator('bake_gi.render_reflection_probes', icon='RENDER_RESULT')
                 col = row.column()
 
             
-                col.operator('probes_export.clear_cache', icon='TRASH')
+            col.operator('bake_gi.clear_probes_cache', icon='TRASH')
 
-                master_row.separator(factor=2)
+            master_row.separator(factor=2)
 
-                row = master_row.row()
-                row.prop(prop, 'use_default_settings')    
+            row = master_row.row()
+            row.prop(prop, 'use_default_settings')    
 
-                master_row = layout.column()
-                master_row.active = prop.enable_export and not prop.use_default_settings
+            master_row = layout.column()
+            master_row.active = prop.enable_export and not prop.use_default_settings
 
-                # if not prop.use_default_settings:
+            # if not prop.use_default_settings:
+            col = master_row.column()
+            col.prop(prop, 'map_size')
+            col.prop(prop, 'samples_max')
+
+            col.separator(factor=2)
+            col.prop(prop, 'export_map_size')
+            col.prop(prop, 'export_max_texture_size')
+
+            if data.type == 'CUBEMAP':
                 col = master_row.column()
-                col.prop(prop, 'map_size')
-                col.prop(prop, 'samples_max')
-
-                col.separator(factor=2)
-                col.prop(prop, 'export_map_size')
-                col.prop(prop, 'export_max_texture_size')
-
-                if data.type == 'CUBEMAP':
-                    col = master_row.column()
-                    
-                    col.prop(prop, 'export_nb_levels')
-                    col.prop(prop, 'export_level_roughness')
-                    col.prop(prop, 'export_start_roughness')
+                
+                col.prop(prop, 'export_nb_levels')
+                col.prop(prop, 'export_level_roughness')
+                col.prop(prop, 'export_start_roughness')
                 
         else:
 
             row = master_row.row(align=True)
             col = row.column()
-            col.operator('probes_export.render_default', icon='RENDER_RESULT')
+            col.operator('bake_gi.render_default_probes', icon='RENDER_RESULT')
 
             col = row.column()
-            col.operator('probes_export.clear_cache', icon='TRASH')
+            col.operator('bake_gi.clear_probes_cache', icon='TRASH')
 
             col = master_row.column()
             col.separator(factor=2)

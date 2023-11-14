@@ -1,14 +1,10 @@
-import typing
 import bpy
 from bpy.types import Context, Event, Operator
-
-import json
-
-from ..helpers.create import unlink_pano_camera
-
-from ..compositing.reflectance import pack_reflectance_probe
-from ..compositing.irradiance import pack_irradiance_probe
-from ..compositing.global_probe import pack_global_probe
+from ..renderer import (
+    Reflection_probe_volume_renderer,
+    Default_probe_volume_renderer,
+    Irradiance_probe_volume_renderer,
+)
 
 from ..helpers.poll import (
     is_exportable_default_light_probe,
@@ -17,45 +13,39 @@ from ..helpers.poll import (
     is_exportable_reflection_light_probe,
 )
 
-from ..helpers.render import (
-    DefaultProbeVolumeRenderer,
-    IrradianceProbeVolumeRenderer,
-    ReflectionProbeVolumeRenderer,
-    # reset_objects_render_settings,
-    # save_pano_irradiance_probe_render,
-    # save_pano_reflection_probe_render,
-)
 
 from ..helpers.files import (
     clear_render_cache_subdirectory,
     render_cache_subdirectory_exists,
     clear_render_cache_directory,
-    save_probe_json_render_data,
 )
 
-from .multirender import BatchRenderer
+from ..renderer.batch_renderer import Batch_renderer
 
 
-
-
-class RenderReflectionProbeOperator(Operator, ReflectionProbeVolumeRenderer):
-    bl_idname = "probes_export.render_reflectance"
-    bl_label = "Render reflection probe"
+class BAKE_GI_OP_render_reflection_probes(Operator, Reflection_probe_volume_renderer):
+    bl_idname = "bake_gi.render_reflection_probes"
+    bl_label = "Render selected reflection probe volume"
     bl_description = ""
     bl_options = {"REGISTER"}
 
     @classmethod
     def poll(cls, context):
-        return BatchRenderer.getDefault().available() and is_exportable_reflection_light_probe(context)
+        return (
+            Batch_renderer.get_default().available()
+            and is_exportable_reflection_light_probe(context)
+        )
 
     def execute(self, context):
-        self.setup_render_batch(context, self, context.object)
+        
+        if self.setup_render_batch(context, self, context.object) == None:
+            return {"CANCELLED"}
 
-        return BatchRenderer.getDefault().execute(
+        return Batch_renderer.get_default().execute(
             context,
             self,
             self.render_nb_probes,
-            onRenderComplete=self.finalize_render,
+            on_render_complete=self.finalize_render,
         )
 
     def modal(self, context: Context, event: Event):
@@ -64,7 +54,7 @@ class RenderReflectionProbeOperator(Operator, ReflectionProbeVolumeRenderer):
             renderState,
             shotIndex,
             nbShots,
-        ] = BatchRenderer.getDefault().modal(context, event, self.setup_render)
+        ] = Batch_renderer.get_default().modal(context, event, self.setup_render)
         if operatorResult == "CANCELLED":
             self.reset(context)
         elif operatorResult == "FINISHED":
@@ -74,24 +64,28 @@ class RenderReflectionProbeOperator(Operator, ReflectionProbeVolumeRenderer):
         return {operatorResult}
 
 
-class RenderIrradianceProbeOperator(Operator, IrradianceProbeVolumeRenderer):
-    bl_idname = "probes_export.render_irradiance"
-    bl_label = "Render irradiance probe"
+class BAKE_GI_OP_render_irradiance_probes(Operator, Irradiance_probe_volume_renderer):
+    bl_idname = "bake_gi.render_irradiance_probes"
+    bl_label = "Render selected irradiance probe volume"
     bl_description = ""
     bl_options = {"REGISTER"}
 
     @classmethod
     def poll(cls, context):
-        return BatchRenderer.getDefault().available() and is_exportable_irradiance_light_probe(context)
+        return (
+            Batch_renderer.get_default().available()
+            and is_exportable_irradiance_light_probe(context)
+        )
 
     def execute(self, context):
-        self.setup_render_batch(context, self, context.object)
+        if self.setup_render_batch(context, self, context.object) == None:
+            return {"CANCELLED"}
 
-        return BatchRenderer.getDefault().execute(
+        return Batch_renderer.get_default().execute(
             context,
             self,
             self.render_nb_probes,
-            onRenderComplete=self.finalize_render,
+            on_render_complete=self.finalize_render,
         )
 
     def modal(self, context: Context, event: Event):
@@ -100,7 +94,7 @@ class RenderIrradianceProbeOperator(Operator, IrradianceProbeVolumeRenderer):
             renderState,
             shotIndex,
             nbShots,
-        ] = BatchRenderer.getDefault().modal(context, event, self.setup_render)
+        ] = Batch_renderer.get_default().modal(context, event, self.setup_render)
         if operatorResult == "CANCELLED":
             self.reset(context)
         elif operatorResult == "FINISHED":
@@ -110,24 +104,28 @@ class RenderIrradianceProbeOperator(Operator, IrradianceProbeVolumeRenderer):
         return {operatorResult}
 
 
-class RenderDefaultProbeOperator(Operator, DefaultProbeVolumeRenderer):
-    bl_idname = "probes_export.render_default"
-    bl_label = "Render default probe"
+class BAKE_GI_OP_render_default_probe(Operator, Default_probe_volume_renderer):
+    bl_idname = "bake_gi.render_default_probes"
+    bl_label = "Render selected default probe volume"
     bl_description = ""
     bl_options = {"REGISTER"}
 
     @classmethod
     def poll(cls, context):
-        return BatchRenderer.getDefault().available() and is_exportable_default_light_probe(context) 
+        return (
+            Batch_renderer.get_default().available()
+            and is_exportable_default_light_probe(context)
+        )
 
     def execute(self, context):
-        self.setup_render_batch(context, self, context.object)
+        if self.setup_render_batch(context, self, context.object) == None:
+            return {"CANCELLED"}
 
-        return BatchRenderer.getDefault().execute(
+        return Batch_renderer.get_default().execute(
             context,
             self,
             self.render_nb_probes,
-            onRenderComplete=self.finalize_render,
+            on_render_complete=self.finalize_render,
         )
 
     def modal(self, context: Context, event: Event):
@@ -136,7 +134,7 @@ class RenderDefaultProbeOperator(Operator, DefaultProbeVolumeRenderer):
             renderState,
             shotIndex,
             nbShots,
-        ] = BatchRenderer.getDefault().modal(context, event, self.setup_render)
+        ] = Batch_renderer.get_default().modal(context, event, self.setup_render)
         if operatorResult == "CANCELLED":
             self.reset(context)
         elif operatorResult == "FINISHED":
@@ -146,9 +144,9 @@ class RenderDefaultProbeOperator(Operator, DefaultProbeVolumeRenderer):
         return {operatorResult}
 
 
-class RenderAllProbesOperator(Operator):
-    bl_idname = "probes_export.render_all"
-    bl_label = "Render all probes"
+class BAKE_GI_OP_render_all_probes(Operator):
+    bl_idname = "bake_gi.render_all_probes"
+    bl_label = "Render all probe volumes"
     bl_description = ""
     bl_options = {"REGISTER"}
 
@@ -160,7 +158,7 @@ class RenderAllProbesOperator(Operator):
 
     @classmethod
     def poll(cls, context):
-        return BatchRenderer.getDefault().available()
+        return Batch_renderer.get_default().available()
 
     def setup_render(self, context, shot_index, nb_shots):
         renderer = self.__probes_renderers[self.__current_renderer_index]
@@ -171,12 +169,12 @@ class RenderAllProbesOperator(Operator):
         relative_probe_index = shot_index - probe_index
 
         if relative_probe_index == 0:
-            print(
-                "> setup render batch", self.__current_renderer_index, probe_volume.name
-            )
+            # print(
+            #     "> setup render batch", self.__current_renderer_index, probe_volume.name
+            # )
             renderer.setup_render_batch(context, self, probe_volume)
 
-        print(">> setup render", shot_index, nb_shots, relative_probe_index, nb_probes)
+        # print(">> setup render", shot_index, nb_shots, relative_probe_index, nb_probes)
         renderer.setup_render(context, relative_probe_index, nb_probes)
 
     def finalize_render(self, context, shot_index, nb_shots):
@@ -187,17 +185,17 @@ class RenderAllProbesOperator(Operator):
 
         relative_probe_index = shot_index - probe_index
 
-        print(
-            ">> finalize render", shot_index, nb_shots, relative_probe_index, nb_probes
-        )
+        # print(
+        #     ">> finalize render", shot_index, nb_shots, relative_probe_index, nb_probes
+        # )
         renderer.finalize_render(context, relative_probe_index, nb_probes)
 
         if relative_probe_index >= nb_probes - 1:
-            print(
-                "> finalize render batch",
-                self.__current_renderer_index,
-                probe_volume.name,
-            )
+            # print(
+            #     "> finalize render batch",
+            #     self.__current_renderer_index,
+            #     probe_volume.name,
+            # )
             renderer.finalize_render_batch(context, self)
             self.__current_renderer_index += 1
 
@@ -212,14 +210,14 @@ class RenderAllProbesOperator(Operator):
         for object in bpy.data.objects:
             renderer = None
 
-            if object.type == "LIGHT_PROBE" and object.data.probes_export.enable_export:
+            if object.type == "LIGHT_PROBE" and object.data.bake_gi.enable_export:
                 if object.data.type == "CUBEMAP":
-                    if object.data.probes_export.is_global_probe:
-                        renderer = DefaultProbeVolumeRenderer()
+                    if object.data.bake_gi.is_global_probe:
+                        renderer = Default_probe_volume_renderer()
                     else:
-                        renderer = ReflectionProbeVolumeRenderer()
+                        renderer = Reflection_probe_volume_renderer()
                 elif object.data.type == "GRID":
-                    renderer = IrradianceProbeVolumeRenderer()
+                    renderer = Irradiance_probe_volume_renderer()
 
             if renderer is not None:
                 nb_probes = renderer.get_nb_probes(object)
@@ -232,11 +230,11 @@ class RenderAllProbesOperator(Operator):
 
         total_nb_probes = probe_index
         if probe_index > 0:
-            return BatchRenderer.getDefault().execute(
+            return Batch_renderer.get_default().execute(
                 context,
                 self,
                 total_nb_probes,
-                onRenderComplete=self.finalize_render,
+                on_render_complete=self.finalize_render,
             )
         else:
             return {"FINISHED"}
@@ -253,7 +251,7 @@ class RenderAllProbesOperator(Operator):
             renderState,
             shotIndex,
             nbShots,
-        ] = BatchRenderer.getDefault().modal(context, event, self.setup_render)
+        ] = Batch_renderer.get_default().modal(context, event, self.setup_render)
         if operatorResult == "CANCELLED":
             self.reset(context)
         elif operatorResult == "FINISHED":
@@ -264,9 +262,9 @@ class RenderAllProbesOperator(Operator):
         return {operatorResult}
 
 
-class ClearRenderProbeCache(Operator):
-    bl_idname = "probes_export.clear_cache"
-    bl_label = "Clear volume cache"
+class BAKE_GI_OP_clear_probes_render_cache(Operator):
+    bl_idname = "bake_gi.clear_probes_cache"
+    bl_label = "Clear selected probes volume cache"
     bl_description = ""
     bl_options = {"REGISTER"}
 
@@ -275,33 +273,33 @@ class ClearRenderProbeCache(Operator):
         if is_exportable_light_probe(context) is False:
             return False
 
-        if context.object.data.probes_export.is_global_probe:
+        if context.object.data.bake_gi.is_global_probe:
             cache_name = context.object.name
         else:
             cache_name = context.object.name
 
         return render_cache_subdirectory_exists(
-            context.scene.probes_export.export_directory_path, cache_name
+            context.scene.bake_gi.export_directory_path, cache_name
         )
 
     def execute(self, context):
-        if context.object.data.probes_export.is_global_probe:
+        if context.object.data.bake_gi.is_global_probe:
             cache_name = context.object.name
         else:
             cache_name = context.object.name
 
         clear_render_cache_subdirectory(
-            context.scene.probes_export.export_directory_path, cache_name
+            context.scene.bake_gi.export_directory_path, cache_name
         )
         return {"FINISHED"}
 
 
-class ClearProbeCacheDirectory(Operator):
-    bl_idname = "probes_export.clear_main_cache_directory"
-    bl_label = "Clear probes cache"
+class BAKE_GI_OP_clear_all_probes_render_cache(Operator):
+    bl_idname = "bake_gi.clear_all_probes_cache"
+    bl_label = "Clear all probe volumes cache"
     bl_description = ""
     bl_options = {"REGISTER"}
 
     def execute(self, context):
-        clear_render_cache_directory(context.scene.probes_export.export_directory_path)
+        clear_render_cache_directory(context.scene.bake_gi.export_directory_path)
         return {"FINISHED"}

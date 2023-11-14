@@ -78,7 +78,7 @@ def pack_irradiance_cubemap(
 
 
 def pack_irradiance_probe_to_image(context, data, cubemap_size, max_texture_size = 1024):
-    export_directory = context.scene.probes_export.export_directory_path
+    export_directory = context.scene.bake_gi.export_directory_path
     source_files_path = []
     final_export_directory = get_render_cache_subdirectory(export_directory, data['name'])
     for file in data['files']:
@@ -119,17 +119,17 @@ def pack_irradiance_probe_to_image(context, data, cubemap_size, max_texture_size
 
 
 def pack_irradiance_probe(context, prob_object = None):
-    export_directory = context.scene.probes_export.export_directory_path
+    export_directory = context.scene.bake_gi.export_directory_path
         
     if(prob_object == None):
         prob_object = context.object
 
     prob = prob_object.data
-    settings = prob.probes_export
+    settings = prob.bake_gi
 
     if(settings.use_default_settings):
-        map_size = context.scene.probes_export.irradiance_volume_default_export_map_size
-        export_max_texture_size = context.scene.probes_export.irradiance_volume_default_export_max_texture_size
+        map_size = context.scene.bake_gi.irradiance_volume_default_export_map_size
+        export_max_texture_size = context.scene.bake_gi.irradiance_volume_default_export_max_texture_size
     else:
         map_size = settings.export_map_size
         export_max_texture_size = settings.export_max_texture_size

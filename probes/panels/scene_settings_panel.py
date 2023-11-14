@@ -1,9 +1,9 @@
 import bpy
 
 
-class SceneGlobalEnvSettingsPanel(bpy.types.Panel):
-    bl_idname = 'VIEW3D_PT_probes_export_scene_global_env_settings'
-    bl_parent_id = 'VIEW3D_PT_probes_export_scene_settings'
+class BAKE_GI_PT_scene_default_probes_settings(bpy.types.Panel):
+    bl_idname = 'BAKE_GI_PT_scene_default_probes_settings'
+    bl_parent_id = 'BAKE_GI_PT_scene_settings'
     bl_label = 'Default probe cubmaps'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
@@ -11,7 +11,7 @@ class SceneGlobalEnvSettingsPanel(bpy.types.Panel):
 
     def draw(self, context):
         scene = context.scene
-        props = scene.probes_export
+        props = scene.bake_gi
 
         layout = self.layout
         layout.use_property_split = True
@@ -42,9 +42,9 @@ class SceneGlobalEnvSettingsPanel(bpy.types.Panel):
         col.prop(props, 'global_reflectance_level_roughness', text = "Roughness step")
         col.prop(props, 'global_reflectance_start_roughness', text = "Start roughness")
 
-class SceneReflectionSettingsPanel(bpy.types.Panel):
-    bl_idname = 'VIEW3D_PT_probes_export_scene_irradiance_settings'
-    bl_parent_id = 'VIEW3D_PT_probes_export_scene_settings'
+class BAKE_GI_PT_scene_reflection_probes_settings(bpy.types.Panel):
+    bl_idname = 'BAKE_GI_PT_scene_reflection_probes_settings'
+    bl_parent_id = 'BAKE_GI_PT_scene_settings'
     bl_label = 'Radiance cubemaps'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
@@ -52,7 +52,7 @@ class SceneReflectionSettingsPanel(bpy.types.Panel):
 
     def draw(self, context):
         scene = context.scene
-        prop = scene.probes_export
+        prop = scene.bake_gi
 
         layout = self.layout
         layout.use_property_split = True
@@ -77,9 +77,9 @@ class SceneReflectionSettingsPanel(bpy.types.Panel):
         col.prop(prop, 'reflection_volume_default_export_start_roughness')
         col.prop(prop, 'reflection_volume_default_export_level_roughness')
 
-class SceneIrradianceSettingsPanel(bpy.types.Panel):
-    bl_idname = 'VIEW3D_PT_probes_export_scene_reflectance_settings'
-    bl_parent_id = 'VIEW3D_PT_probes_export_scene_settings'
+class BAKE_GI_PT_scene_irradiance_probes_settings(bpy.types.Panel):
+    bl_idname = 'BAKE_GI_PT_scene_irradiance_probes_settings'
+    bl_parent_id = 'BAKE_GI_PT_scene_settings'
     bl_label = 'Irradiance cubemaps'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
@@ -87,7 +87,7 @@ class SceneIrradianceSettingsPanel(bpy.types.Panel):
 
     def draw(self, context):
         scene = context.scene
-        prop = scene.probes_export
+        prop = scene.bake_gi
 
         layout = self.layout
         layout.use_property_split = True
@@ -110,9 +110,9 @@ class SceneIrradianceSettingsPanel(bpy.types.Panel):
 
 
 
-class SceneSettingsPanel(bpy.types.Panel):
+class BAKE_GI_PT_scene_settings(bpy.types.Panel):
 
-    bl_idname = 'VIEW3D_PT_probes_export_scene_settings'
+    bl_idname = 'BAKE_GI_PT_scene_settings'
     bl_label = 'GI bake'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
@@ -125,7 +125,7 @@ class SceneSettingsPanel(bpy.types.Panel):
     def draw(self, context):
 
         scene = context.scene
-        prop = scene.probes_export
+        prop = scene.bake_gi
 
         layout = self.layout
         layout.use_property_split = True
@@ -135,11 +135,11 @@ class SceneSettingsPanel(bpy.types.Panel):
         
         
         col.prop(prop, 'export_directory_path')
-        col.operator('probes_export.set_export_directory', icon='FILE_FOLDER', text='') #.export_path = prop.export_path
+        col.operator('bake_gi.set_probes_directory', icon='FILE_FOLDER', text='') #.export_path = prop.export_path
         col = layout.column()
         col.prop(prop, 'export_format') 
-        if prop.export_format == 'SDR':
-            col.prop(prop, 'export_exposure')
+        # if prop.export_format == 'SDR':
+        col.prop(prop, 'export_exposure')
 
         col = layout.row()
         
@@ -147,9 +147,9 @@ class SceneSettingsPanel(bpy.types.Panel):
         col = layout.column()
         row = col.row(align=True)
         scol = row.column()
-        scol.operator('probes_export.render_all', icon='RENDER_RESULT')
+        scol.operator('bake_gi.render_all_probes', icon='RENDER_RESULT')
         scol = row.column()
-        scol.operator('probes_export.clear_main_cache_directory', icon='TRASH') #.export_path = prop.export_path
+        scol.operator('bake_gi.clear_all_probes_cache', icon='TRASH') #.export_path = prop.export_path
         
 
 

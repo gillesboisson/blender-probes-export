@@ -5,14 +5,10 @@ from bpy.utils import register_class, unregister_class
 
 
 
-class ProbeExportSettingsProps(bpy.types.PropertyGroup):
+class BAKE_GI_probes_settings(bpy.types.PropertyGroup):
     enable_export: BoolProperty(name="Enable", default=True)
     is_global_probe: BoolProperty(name="Default probe", default=False)
-
-
-
-
-
+    
     use_default_settings: BoolProperty(name="Use default settings", default=True)
     
     map_size: IntProperty(name="Map size", default=256)
@@ -28,7 +24,7 @@ class ProbeExportSettingsProps(bpy.types.PropertyGroup):
 
    
 classes = (
-    ProbeExportSettingsProps,
+    BAKE_GI_probes_settings,
 )
 
 
@@ -36,9 +32,9 @@ def register_probes_settings():
     for cls in classes:
         register_class(cls)
     
-    bpy.types.LightProbe.probes_export = PointerProperty(type=ProbeExportSettingsProps)
+    bpy.types.LightProbe.bake_gi = PointerProperty(type=BAKE_GI_probes_settings)
 def unregister_probes_settings():
     for cls in reversed(classes):
         unregister_class(cls)
 
-    delattr(bpy.types.LightProbe, 'probes_export')
+    delattr(bpy.types.LightProbe, 'bake_gi')

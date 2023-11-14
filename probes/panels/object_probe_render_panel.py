@@ -5,8 +5,8 @@ from ..helpers.poll import is_exportable_light_probe
 
 
 
-class ObjectProbeRenderPanel(bpy.types.Panel):
-    bl_idname = 'VIEW3D_PT_object_probe_render'
+class BAKE_GI_PT_object(bpy.types.Panel):
+    bl_idname = 'BAKE_GI_PT_object'
     bl_label = 'GI bake'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
@@ -21,7 +21,7 @@ class ObjectProbeRenderPanel(bpy.types.Panel):
     def draw(self, context):
         
         ob = context.object
-        prop = ob.probes_render
+        prop = ob.bake_gi
 
         layout = self.layout
         layout.use_property_split = True
