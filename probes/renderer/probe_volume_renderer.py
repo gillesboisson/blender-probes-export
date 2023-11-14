@@ -1,8 +1,12 @@
 from mathutils import Matrix
-from ..compositing import pack_irradiance_probe, pack_reflectance_probe, pack_global_probe
+from ..compositing import (
+    pack_irradiance_probe,
+    pack_reflectance_probe,
+    pack_global_probe,
+)
 
 from ..helpers.settings import set_pano_render_settings
-from ..helpers.config import get_export_extension
+from ..helpers.config import get_export_extension, get_export_format
 from ..helpers.create import create_pano_camera, unlink_pano_camera
 from ..helpers.files import (
     get_or_create_render_cache_subdirectory,
@@ -32,13 +36,14 @@ class Probe_volume_renderer:
     json_data = None
     probe_volume = None
     samples_max = 0
-    height = 0
+    map_size = 0
     export_directory = ""
     final_export_directory = ""
     object_transform = None
     camera = None
     file_extension = ""
     render_nb_probes = 0
+    render_nb_probes_progress = 0
 
     def get_json_data(self):
         return self.json_data
@@ -54,12 +59,34 @@ class Probe_volume_renderer:
         self.json_data = None
         self.probe_volume = None
         self.samples_max = 0
-        self.height = 0
+        self.samples_max = 0
+        self.time_limit = 0
+        self.map_size = 0
         self.export_directory = ""
         self.object_transform = None
         self.camera = None
         self.file_extension = ""
         self.render_nb_probes = 0
+        self.render_nb_probes_progress = 0
+
+    def setup_render_settings_from_props(self, context, props):
+        self.samples_max = props.samples_max
+        self.samples_min = props.samples_min
+        self.time_limit = props.time_limit
+        self.map_size = props.map_size
+        pass
+
+    def set_pano_render_settings(self, context, output_path):
+        context.scene.render.engine = "CYCLES"
+        context.scene.cycles.samples = self.samples_max
+        context.scene.cycles.min_samples = self.samples_min
+        context.scene.cycles.time_limit = self.time_limit
+        context.scene.cycles.film_exposure = context.scene.bake_gi.export_exposure
+        context.scene.render.resolution_x = self.map_size * 2
+        context.scene.render.resolution_y = self.map_size
+        context.scene.render.image_settings.file_format = get_export_format(context)
+        context.scene.render.filepath = output_path
+        context.scene.camera = self.camera
 
     def setup_render_settings(self, context, probe_volume):
         pass
@@ -94,7 +121,7 @@ class Probe_volume_renderer:
         )
 
         self.samples_max = self.samples_max
-        self.height = self.height
+        self.map_size = self.map_size
         self.export_directory = export_directory
         self.object_transform = object_transform
         self.camera = camera
@@ -110,6 +137,7 @@ class Probe_volume_renderer:
         pass
 
     def finalize_render(self, context, probe_index, nb_probes):
+        self.render_nb_probes_progress = probe_index + 1
         pass
 
     def finalize_render_batch(self, context, operator):
@@ -137,33 +165,42 @@ class Default_probe_volume_renderer(Probe_volume_renderer):
 
         self.json_data = {
             "name": self.probe_volume.name,
-            "type": "global",
-            "position": [
-                self.object_transform.translation.x,
-                self.object_transform.translation.z,
-                -self.object_transform.translation.y,
-            ],
-            "clip_start": self.probe_volume.data.clip_start,
-            "clip_end": self.probe_volume.data.clip_end,
-            "data": {
-                "map_size": props.global_map_size,
-                "samples_max": props.global_samples_max,
-                "irradiance_export_map_size": props.global_irradiance_export_map_size,
-                "irradiance_max_texture_size": props.global_irradiance_max_texture_size,
-                "reflectance_export_map_size": props.global_reflectance_export_map_size,
-                "reflectance_max_texture_size": props.global_reflectance_max_texture_size,
-                "reflectance_nb_levels": props.global_reflectance_nb_levels,
-                "reflectance_start_roughness": props.global_reflectance_start_roughness,
-                "reflectance_level_roughness": props.global_reflectance_level_roughness,
+            "probe_type": "global",
+            "type": "pano",
+            "transform": {
+                "position": [
+                    self.object_transform.translation.x,
+                    self.object_transform.translation.z,
+                    -self.object_transform.translation.y,
+                ],
+                "scale": self.object_transform.to_scale().to_tuple(),
+                "rotation": [0, 0, 0],
             },
+            "render": {
+                "clip_start": self.probe_volume.data.clip_start,
+                "clip_end": self.probe_volume.data.clip_end,
+                "map_size": self.map_size,
+                "cycle_samples_max": self.samples_max,
+                "cycle_samples_min": self.samples_min,
+                "cycle_time_limit": self.time_limit,
+            },
+            # "data": {
+            #     # "irradiance_export_map_size": props.global_irradiance_export_map_size,
+            #     # "irradiance_max_texture_size": props.global_irradiance_max_texture_size,
+            #     # "reflectance_export_map_size": props.global_reflectance_export_map_size,
+            #     # "reflectance_max_texture_size": props.global_reflectance_max_texture_size,
+            #     # "reflectance_nb_levels": props.global_reflectance_nb_levels,
+            #     # "reflectance_start_roughness": props.global_reflectance_start_roughness,
+            #     # "reflectance_level_roughness": props.global_reflectance_level_roughness,
+            # },
             "file": global_pano_filename(self.probe_volume.name, self.file_extension),
             "baked_objects": get_scene_renderered_object_names(context),
         }
 
     def setup_render_settings(self, context, probe_volume):
-        props = context.scene.bake_gi
-        self.samples_max = props.global_samples_max
-        self.height = props.global_map_size
+        self.setup_render_settings_from_props(
+            context, context.scene.bake_gi.global_render_settings
+        )
 
     def setup_render_batch(self, context, operator, probe_volume):
         self.nb_probes = 1
@@ -183,12 +220,9 @@ class Default_probe_volume_renderer(Probe_volume_renderer):
         self.camera.location = self.object_transform.translation
         self.camera.rotation_euler.x = pi / 2
 
-        set_pano_render_settings(
+        self.set_pano_render_settings(
             context,
-            self.camera,
             filepath,
-            samples_max=self.samples_max,
-            height=self.height,
         )
 
     def finalize_render_batch(self, context, operator):
@@ -209,38 +243,48 @@ class Irradiance_probe_volume_renderer(Probe_volume_renderer):
             "type": "pano",
             "probe_type": "irradiance",
             "name": self.probe_volume.name,
-            "width": self.height * 2,
-            "height": self.height,
-            "position": [
-                translation_tupple[0],
-                translation_tupple[2],
-                -translation_tupple[1],
-            ],
-            "scale": [scale_tupple[0], scale_tupple[2], scale_tupple[1]],
-            "rotation": [rotation_euler.x, rotation_euler.z, -rotation_euler.y],
-            "falloff": self.probe_volume.data.falloff,
-            "resolution": [
-                self.probe_volume.data.grid_resolution_x,
-                self.probe_volume.data.grid_resolution_z,
-                self.probe_volume.data.grid_resolution_y,
-            ],
-            "clip_start": self.probe_volume.data.clip_start,
-            "clip_end": self.probe_volume.data.clip_end,
-            "influence_distance": self.probe_volume.data.influence_distance,
+            # "width": self.height * 2,
+            # "height": self.height,
+            "transform": {
+                "position": [
+                    translation_tupple[0],
+                    translation_tupple[2],
+                    -translation_tupple[1],
+                ],
+                "scale": [scale_tupple[0], scale_tupple[2], scale_tupple[1]],
+                "rotation": [rotation_euler.x, rotation_euler.z, -rotation_euler.y],
+            },
+            "render": {
+                "clip_start": self.probe_volume.data.clip_start,
+                "clip_end": self.probe_volume.data.clip_end,
+                "map_size": self.map_size,
+                "cycle_samples_max": self.samples_max,
+                "cycle_samples_min": self.samples_min,
+                "cycle_time_limit": self.time_limit,
+            },
+            "data": {
+                "resolution": [
+                    self.probe_volume.data.grid_resolution_x,
+                    self.probe_volume.data.grid_resolution_z,
+                    self.probe_volume.data.grid_resolution_y,
+                ],
+                "influence_distance": self.probe_volume.data.influence_distance,
+                "falloff": self.probe_volume.data.falloff,
+            },
             "files": [],
             "baked_objects": get_scene_renderered_object_names(context),
         }
 
     def setup_render_settings(self, context, probe_volume):
-        settings = probe_volume.data.bake_gi
-        if settings.use_default_settings:
-            self.samples_max = (
-                context.scene.bake_gi.irradiance_volume_default_samples_max
+        probe_volume_settings = probe_volume.data.bake_gi
+        if probe_volume_settings.use_default_settings:
+            self.setup_render_settings_from_props(
+                context, context.scene.bake_gi.default_irradiance_render_settings
             )
-            self.height = context.scene.bake_gi.irradiance_volume_default_map_size
         else:
-            self.samples_max = settings.samples_max
-            self.height = settings.map_size
+            self.setup_render_settings_from_props(
+                context, probe_volume_settings.render_settings
+            )
 
     def get_nb_probes(self, probe_volume):
         return (
@@ -270,7 +314,6 @@ class Irradiance_probe_volume_renderer(Probe_volume_renderer):
         ry = resolution_y - ry - 1  # inverted y for openGL axis conversion
         rz = floor(probe_index / resolution_y) % resolution_z
 
-
         vz = (rz + 0.5) / resolution_z * 2 - 1
         vx = (rx + 0.5) / resolution_x * 2 - 1
         vy = (ry + 0.5) / resolution_y * 2 - 1
@@ -288,17 +331,14 @@ class Irradiance_probe_volume_renderer(Probe_volume_renderer):
         self.camera.location = res_vec
         self.camera.rotation_euler.x = pi / 2
 
-        set_pano_render_settings(
+        self.set_pano_render_settings(
             context,
-            self.camera,
             final_file_path,
-            samples_max=self.samples_max,
-            height=self.height,
         )
-
         pass
 
     def finalize_render(self, context, probe_index, nb_probes):
+        super().finalize_render(context, probe_index, nb_probes)
         self.json_data["files"].append(self.__current_render_filename)
         pass
 
@@ -312,39 +352,60 @@ class Reflection_probe_volume_renderer(Probe_volume_renderer):
     def init_json_data(self, context):
         self.json_data = {
             "type": "pano",
+            "probe_type": "reflection",
+            "name": self.probe_volume.name,
+            "transform": {
+                "position": [
+                    self.object_transform.translation.x,
+                    self.object_transform.translation.z,
+                    -self.object_transform.translation.y,
+                ],
+                "scale": self.object_transform.to_scale().to_tuple(),
+                "rotation": [0, 0, 0],
+            },
             "position": [
                 self.object_transform.translation.x,
                 self.object_transform.translation.z,
                 -self.object_transform.translation.y,
             ],
+            "data": {
+                "falloff": self.probe_volume.data.falloff,
+                "intensity": self.probe_volume.data.intensity,
+                "influence_type": self.probe_volume.data.influence_type,
+                "influence_distance": self.probe_volume.data.influence_distance,
+            },
+            "render": {
+                "clip_start": self.probe_volume.data.clip_start,
+                "clip_end": self.probe_volume.data.clip_end,
+                "map_size": self.map_size,
+                "cycle_samples_max": self.samples_max,
+                "cycle_samples_min": self.samples_min,
+                "cycle_time_limit": self.time_limit,
+            },
             "file": pano_filename(self.file_extension),
             "baked_objects": get_scene_renderered_object_names(context),
-            "scale": self.object_transform.to_scale().to_tuple(),
-            "rotation": [0, 0, 0],
-            "falloff": self.probe_volume.data.falloff,
-            "intensity": self.probe_volume.data.intensity,
-            "influence_type": self.probe_volume.data.influence_type,
-            "influence_distance": self.probe_volume.data.influence_distance,
-            "clip_start": self.probe_volume.data.clip_start,
-            "clip_end": self.probe_volume.data.clip_end,
-            "probe_type": "reflection",
-            "name": self.probe_volume.name,
-            "width": self.height * 2,
-            "height": self.height,
         }
 
     def setup_render_settings(self, context, probe_volume):
-        settings = probe_volume.data.bake_gi
-        if settings.use_default_settings:
-            self.samples_max = (
-                context.scene.bake_gi.reflection_cubemap_default_samples_max
-            )
-            self.height = (
-                context.scene.bake_gi.reflection_cubemap_default_map_size
+        probe_volume_settings = probe_volume.data.bake_gi
+        if probe_volume_settings.use_default_settings:
+            self.setup_render_settings_from_props(
+                context, context.scene.bake_gi.default_reflection_render_settings
             )
         else:
-            self.samples_max = settings.samples_max
-            self.height = settings.map_size
+            self.setup_render_settings_from_props(
+                context, probe_volume_settings.render_settings
+            )
+
+        # settings = probe_volume.data.bake_gi
+        # if settings.use_default_settings:
+        #     self.samples_max = (
+        #         context.scene.bake_gi.reflection_cubemap_default_samples_max
+        #     )
+        #     self.height = context.scene.bake_gi.reflection_cubemap_default_map_size
+        # else:
+        #     self.samples_max = settings.samples_max
+        #     self.height = settings.map_size
 
     def setup_render(self, context, probe_index, nb_probes):
         export_directory = context.scene.bake_gi.export_directory_path
@@ -358,12 +419,9 @@ class Reflection_probe_volume_renderer(Probe_volume_renderer):
             self.export_directory, self.probe_volume.name, self.file_extension
         )
 
-        set_pano_render_settings(
+        self.set_pano_render_settings(
             context,
-            self.camera,
             filepath,
-            samples_max=self.samples_max,
-            height=self.height,
         )
 
     def setup_render_batch(self, context, operator, probe_volume):
@@ -374,6 +432,7 @@ class Reflection_probe_volume_renderer(Probe_volume_renderer):
         return super().setup_render_batch(context, operator, probe_volume)
 
     def finalize_render(self, context, probe_index, nb_probes):
+        super().finalize_render(context, probe_index, nb_probes)
         pass
 
     def finalize_render_batch(self, context, operator):

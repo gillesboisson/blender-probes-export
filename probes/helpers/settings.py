@@ -1,6 +1,6 @@
 from .config import get_export_format
 
-def set_pano_render_settings(context, camera, output_path, samples_max, height):
+def set_pano_render_settings(context, camera, output_path, samples_max, sample_min, time_limit, height):
     context.scene.render.engine = "CYCLES"
     context.scene.cycles.samples = samples_max
     context.scene.cycles.film_exposure = context.scene.bake_gi.export_exposure

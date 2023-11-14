@@ -7,6 +7,7 @@ from .render_probe_operators import (
     BAKE_GI_OP_render_irradiance_probes,
     BAKE_GI_OP_render_default_probe,
     BAKE_GI_OP_render_all_probes,
+    BAKE_GI_OP_cancel_render
 )
 from .set_probes_export_directory import BAKE_GI_OP_set_probes_directory
 
@@ -30,6 +31,7 @@ classes = (
     BAKE_GI_OP_render_irradiance_probes,
     BAKE_GI_OP_render_default_probe,
     BAKE_GI_OP_render_all_probes,
+    BAKE_GI_OP_cancel_render,
 )
 
 

@@ -10,7 +10,7 @@ from .shader import *
 from .pack import *
 
 from .irradiance import pack_irradiance_cubemap
-from .radiance import pack_reflectance_cubemap
+from .reflection import pack_reflectance_cubemap
 
 from ..helpers import (
     get_render_cache_subdirectory,
@@ -46,24 +46,53 @@ def pack_global_probe(context, prob_object=None):
         context,
         [source_file_path],
         irradiance_filename,
-        props.global_irradiance_export_map_size,
-        props.global_irradiance_max_texture_size,
+        props.global_irradiance_bake_settings.map_size,
+        props.global_irradiance_bake_settings.max_texture_size,
     )
 
     (final_reflectance_path, final_reflectance_filename) = pack_reflectance_cubemap(
         context,
         source_file_path,
         radiance_filename,
-        props.global_reflectance_export_map_size,
-        props.global_reflectance_max_texture_size,
-        props.global_reflectance_start_roughness,
-        props.global_reflectance_level_roughness,
-        props.global_reflectance_nb_levels,
+        props.global_reflection_bake_settings.map_size,
+        props.global_reflection_bake_settings.max_texture_size,
+        props.global_reflection_bake_settings.start_roughness,
+        props.global_reflection_bake_settings.level_roughness,
+        props.global_reflection_bake_settings.nb_levels,
     )
 
-    data["irradiance_file"] = final_irradiance_filename
-    data["reflectance_file"] = final_reflectance_filename
+  
     del data["file"]
+
+    baking_data = {
+        "irradiance": {
+            "cubemap_size": props.global_irradiance_bake_settings.map_size,
+            "max_texture_size": props.global_irradiance_bake_settings.max_texture_size,
+        },
+        "reflectance": {
+            "cubemap_size": props.global_reflection_bake_settings.map_size,
+            "max_texture_size": props.global_reflection_bake_settings.max_texture_size,
+            "start_roughness": props.global_reflection_bake_settings.start_roughness,
+            "level_roughness": props.global_reflection_bake_settings.level_roughness,
+            "nb_levels": props.global_reflection_bake_settings.nb_levels,
+        },
+    }
+
+    
+    final_data = {
+        "name": data["name"],
+        "probe_type": data["probe_type"],
+        "transform": data["transform"],
+        "render": data["render"],
+        "irradiance_file": final_irradiance_filename,
+        "reflectance_file": final_reflectance_filename,
+        "baking": baking_data,
+        "baked_objects": data["baked_objects"],
+    }
+
+    if hasattr(data, "data"):
+        final_data["data"] = data["data"]
+
 
     save_probe_json_pack_data(export_directory, name, data)
     probe_names = get_context_probes_names(context)

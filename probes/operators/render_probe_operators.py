@@ -1,3 +1,4 @@
+from math import floor
 import bpy
 from bpy.types import Context, Event, Operator
 from ..renderer import (
@@ -23,7 +24,14 @@ from ..helpers.files import (
 from ..renderer.batch_renderer import Batch_renderer
 
 
-class BAKE_GI_OP_render_reflection_probes(Operator, Reflection_probe_volume_renderer):
+class RenderOperator(Operator):
+    probe_render_progress = bpy.props.IntProperty(default=0, min=0, max=100)
+    pass
+
+
+class BAKE_GI_OP_render_reflection_probes(
+    RenderOperator, Reflection_probe_volume_renderer
+):
     bl_idname = "bake_gi.render_reflection_probes"
     bl_label = "Render selected reflection probe volume"
     bl_description = ""
@@ -33,11 +41,15 @@ class BAKE_GI_OP_render_reflection_probes(Operator, Reflection_probe_volume_rend
     def poll(cls, context):
         return (
             Batch_renderer.get_default().available()
-            and is_exportable_reflection_light_probe(context)
+            and is_exportable_reflection_light_probe(context.object)
         )
 
+    def setup_render(self, context, probe_index, nb_probes):
+        self.probe_render_progress = floor(probe_index / nb_probes * 100)
+        # render_nb_probes = nb_probes
+        return super().setup_render(context, probe_index, nb_probes)
+
     def execute(self, context):
-        
         if self.setup_render_batch(context, self, context.object) == None:
             return {"CANCELLED"}
 
@@ -60,11 +72,14 @@ class BAKE_GI_OP_render_reflection_probes(Operator, Reflection_probe_volume_rend
         elif operatorResult == "FINISHED":
             self.finalize_render_batch(context, self)
             self.reset(context)
+            self.report({"INFO"}, "Volume bake complete")
 
         return {operatorResult}
 
 
-class BAKE_GI_OP_render_irradiance_probes(Operator, Irradiance_probe_volume_renderer):
+class BAKE_GI_OP_render_irradiance_probes(
+    RenderOperator, Irradiance_probe_volume_renderer
+):
     bl_idname = "bake_gi.render_irradiance_probes"
     bl_label = "Render selected irradiance probe volume"
     bl_description = ""
@@ -74,7 +89,7 @@ class BAKE_GI_OP_render_irradiance_probes(Operator, Irradiance_probe_volume_rend
     def poll(cls, context):
         return (
             Batch_renderer.get_default().available()
-            and is_exportable_irradiance_light_probe(context)
+            and is_exportable_irradiance_light_probe(context.object)
         )
 
     def execute(self, context):
@@ -100,11 +115,12 @@ class BAKE_GI_OP_render_irradiance_probes(Operator, Irradiance_probe_volume_rend
         elif operatorResult == "FINISHED":
             self.finalize_render_batch(context, self)
             self.reset(context)
+            self.report({"INFO"}, "Volume bake complete")
 
         return {operatorResult}
 
 
-class BAKE_GI_OP_render_default_probe(Operator, Default_probe_volume_renderer):
+class BAKE_GI_OP_render_default_probe(RenderOperator, Default_probe_volume_renderer):
     bl_idname = "bake_gi.render_default_probes"
     bl_label = "Render selected default probe volume"
     bl_description = ""
@@ -114,7 +130,7 @@ class BAKE_GI_OP_render_default_probe(Operator, Default_probe_volume_renderer):
     def poll(cls, context):
         return (
             Batch_renderer.get_default().available()
-            and is_exportable_default_light_probe(context)
+            and is_exportable_default_light_probe(context.object)
         )
 
     def execute(self, context):
@@ -140,6 +156,7 @@ class BAKE_GI_OP_render_default_probe(Operator, Default_probe_volume_renderer):
         elif operatorResult == "FINISHED":
             self.finalize_render_batch(context, self)
             self.reset(context)
+            self.report({"INFO"}, "Probe bake complete")
 
         return {operatorResult}
 
@@ -153,8 +170,10 @@ class BAKE_GI_OP_render_all_probes(Operator):
     __probes_volumes = None
     __probes_renderers = None
     __probes_renderers_indices = None
-    __probes_renderers_nb_probes = None
+    render_nb_probes = None
     __current_renderer_index = 0
+
+    render_nb_probes_progress = 0
 
     @classmethod
     def poll(cls, context):
@@ -163,7 +182,7 @@ class BAKE_GI_OP_render_all_probes(Operator):
     def setup_render(self, context, shot_index, nb_shots):
         renderer = self.__probes_renderers[self.__current_renderer_index]
         probe_index = self.__probes_renderers_indices[self.__current_renderer_index]
-        nb_probes = self.__probes_renderers_nb_probes[self.__current_renderer_index]
+        nb_probes = self.render_nb_probes[self.__current_renderer_index]
         probe_volume = self.__probes_volumes[self.__current_renderer_index]
 
         relative_probe_index = shot_index - probe_index
@@ -180,8 +199,9 @@ class BAKE_GI_OP_render_all_probes(Operator):
     def finalize_render(self, context, shot_index, nb_shots):
         renderer = self.__probes_renderers[self.__current_renderer_index]
         probe_index = self.__probes_renderers_indices[self.__current_renderer_index]
-        nb_probes = self.__probes_renderers_nb_probes[self.__current_renderer_index]
+        nb_probes = self.render_nb_probes[self.__current_renderer_index]
         probe_volume = self.__probes_volumes[self.__current_renderer_index]
+        self.render_nb_probes_progress = shot_index
 
         relative_probe_index = shot_index - probe_index
 
@@ -202,7 +222,7 @@ class BAKE_GI_OP_render_all_probes(Operator):
     def execute(self, context):
         self.__probes_renderers = []
         self.__probes_renderers_indices = []
-        self.__probes_renderers_nb_probes = []
+        self.render_nb_probes = []
         self.__probes_volumes = []
         self.__current_renderer_index = 0
         probe_index = 0
@@ -223,7 +243,7 @@ class BAKE_GI_OP_render_all_probes(Operator):
                 nb_probes = renderer.get_nb_probes(object)
                 self.__probes_renderers.append(renderer)
                 self.__probes_renderers_indices.append(probe_index)
-                self.__probes_renderers_nb_probes.append(nb_probes)
+                self.render_nb_probes.append(nb_probes)
                 self.__probes_volumes.append(object)
 
                 probe_index += nb_probes
@@ -242,7 +262,7 @@ class BAKE_GI_OP_render_all_probes(Operator):
     def reset(self, context):
         self.__probes_renderers = None
         self.__probes_renderers_indices = None
-        self.__probes_renderers_nb_probes = None
+        self.render_nb_probes = None
         self.__current_renderer_index = 0
 
     def modal(self, context: Context, event: Event):
@@ -255,8 +275,7 @@ class BAKE_GI_OP_render_all_probes(Operator):
         if operatorResult == "CANCELLED":
             self.reset(context)
         elif operatorResult == "FINISHED":
-            self.report({"INFO"}, "Finished rendering all probes")
-            # self.finalize_render_batch(context, self)
+            self.report({"INFO"}, "All volumes baked")
             self.reset(context)
 
         return {operatorResult}
@@ -270,7 +289,7 @@ class BAKE_GI_OP_clear_probes_render_cache(Operator):
 
     @classmethod
     def poll(cls, context):
-        if is_exportable_light_probe(context) is False:
+        if is_exportable_light_probe(context.object) is False:
             return False
 
         if context.object.data.bake_gi.is_global_probe:
@@ -291,6 +310,17 @@ class BAKE_GI_OP_clear_probes_render_cache(Operator):
         clear_render_cache_subdirectory(
             context.scene.bake_gi.export_directory_path, cache_name
         )
+        return {"FINISHED"}
+
+
+class BAKE_GI_OP_cancel_render(Operator):
+    bl_idname = "bake_gi.cancel_render"
+    bl_label = "Cancel render"
+    bl_description = ""
+    bl_options = {"REGISTER"}
+
+    def execute(self, context):
+        Batch_renderer.get_default().cancel(context)
         return {"FINISHED"}
 
 

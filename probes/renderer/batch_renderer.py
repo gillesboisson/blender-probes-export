@@ -1,3 +1,4 @@
+from math import floor
 import time
 import bpy
 
@@ -63,6 +64,7 @@ class Batch_renderer:
             )
 
     def cancel(self, context):
+        # bpy.ops.render.view_cancel()
         self.set_render_state("CANCELLED")
 
     def reset(self):
@@ -75,7 +77,6 @@ class Batch_renderer:
         self.shot_index = 0
         self.set_render_state("OFF")
 
-    
 
     def execute(
         self,
@@ -101,6 +102,7 @@ class Batch_renderer:
 
         self.shot_index = 0
 
+        context.scene.bake_gi.batch_render_progress = 0 
         if self.operator is not None:
             context.window_manager.modal_handler_add(self.operator)
 
@@ -123,22 +125,29 @@ class Batch_renderer:
         return self.__render_state == "OFF" or self.__render_state == "CANCELLED"
 
     def modal(self, context, event, setupRenderDelegate):
+        
         operator_result = "PASS_THROUGH"
         if event.type == "TIMER":  # This event is signaled every half a second
             if self.__render_state == "CANCELLED":
                 operator_result = "CANCELLED"
-
+            
+            
             # START > STARTED state switch as direct render cause proc races issues on render listenners
             # it requires one operator extra modal iteration for better render ops call
             elif self.__render_state == "RENDER_START":
+
+                context.scene.bake_gi.batch_render_progress = floor(self.shot_index / self.nb_shots * 100)
                 self.set_render_state("RENDER_STARTED")
                 bpy.ops.render.render("INVOKE_DEFAULT", write_still=True)
             else:
+                
                 if self.__render_state == "RENDER_COMPLETE":
                     if self.on_render_complete is not None:
                         self.on_render_complete(context, self.shot_index, self.nb_shots)
 
                     self.shot_index += 1
+                    context.scene.bake_gi.batch_render_progress = floor(self.shot_index / self.nb_shots * 100)
+
 
                     if self.shot_index >= self.nb_shots:
                         operator_result = "FINISHED"
@@ -155,6 +164,7 @@ class Batch_renderer:
                         operator_result = "CANCELLED"
                         self.set_render_state("CANCELLED")
                     else:
+
                         # START > STARTED state switch as direct render cause proc races issues on render listenners
                         self.set_render_state("RENDER_START")
 

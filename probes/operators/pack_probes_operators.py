@@ -1,5 +1,4 @@
 from bpy.types import Operator
-import json
 
 from ..helpers import (
     is_exportable_irradiance_light_probe,
@@ -14,9 +13,7 @@ from ..compositing import (
 )
 
 from ..helpers.files import (
-    load_probe_json_render_data,
     render_cache_subdirectory_exists,
-    save_scene_json_pack_data,
 )
 
 class BAKE_GI_OP_pack_irradiance_probes(Operator):
@@ -28,7 +25,7 @@ class BAKE_GI_OP_pack_irradiance_probes(Operator):
     @classmethod
     def poll(cls, context):
         return is_exportable_irradiance_light_probe(
-            context
+            context.object
         ) and render_cache_subdirectory_exists(
             context.scene.bake_gi.export_directory_path, context.object.name
         )
@@ -50,7 +47,7 @@ class BAKE_GI_OP_pack_reflection_probes(Operator):
     @classmethod
     def poll(cls, context):
         return is_exportable_reflection_light_probe(
-            context
+            context.object
         ) and render_cache_subdirectory_exists(
             context.scene.bake_gi.export_directory_path, context.object.name
         )
@@ -72,7 +69,7 @@ class PackGlobalProbe(Operator):
     @classmethod
     def poll(cls, context):
         return is_exportable_reflection_light_probe(
-            context
+            context.object
         ) and render_cache_subdirectory_exists(
             context.scene.bake_gi.export_directory_path, context.object.name
         )

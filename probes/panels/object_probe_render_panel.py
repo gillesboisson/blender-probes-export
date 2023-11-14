@@ -1,7 +1,6 @@
 import bpy
 from bpy.types import Context
 
-from ..helpers.poll import is_exportable_light_probe
 
 
 
@@ -40,3 +39,16 @@ class BAKE_GI_PT_object(bpy.types.Panel):
         pass
 
 
+classes = (
+    BAKE_GI_PT_object,
+)
+
+
+def register_panels():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+
+def unregister_panels():
+    for cls in reversed(classes):
+        bpy.utils.unregister_class(cls)
