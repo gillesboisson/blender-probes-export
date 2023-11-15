@@ -79,7 +79,7 @@ def pack_irradiance_probe(context, prob_object=None):
         "probe_type": data["probe_type"],
         "transform": data["transform"],
         "render": data["render"],
-        "file" : filename,
+        "file": filename,
         "data": data["data"],
         "baking": baking_data,
         "baked_objects": data["baked_objects"],

@@ -18,11 +18,11 @@ A three js demo app is available here [https://three-probes.dotify.eu/](https://
 
 Probes export is done in 2 phases
 - Rendering : use Blender cycle engine tu render probes
-- Packing  : use Blender opengl API to compute irradiance and reflectance and pack data in texture sheet
+- Packing  : use Blender opengl API to compute irradiance and reflection and pack data in texture sheet
 
 ### Rendering
 
-Rendering phase Use blender cycle renderer to render scene static object in reflectance cubemaps and panomic equi rectangle for each Irradiance Grid cell, final result is a png (HDR not supported yet) images for each probe
+Rendering phase Use blender cycle renderer to render scene static object in reflection cubemaps and panomic equi rectangle for each Irradiance Grid cell, final result is a png (HDR not supported yet) images for each probe
 
 
 #### Visibility
@@ -35,7 +35,7 @@ All rendered objects are exported in probe baked_objects property
 
 ### Compute and Packing
 
-Cumpute phase  load renderered image into blender and use internal blender openGL API to compute irradiance, create reflectance level and pack final data in textures sheet for fast integration. Data are exported as JSON and PNG texture sheet, one for each probe
+Cumpute phase  load renderered image into blender and use internal blender openGL API to compute irradiance, create reflection level and pack final data in textures sheet for fast integration. Data are exported as JSON and PNG texture sheet, one for each probe
 
 Irradiance computing is based on Diffuse Irradiance Volume opengl implementation from  [Learn OpenGL](https://learnopengl.com/PBR/IBL/Diffuse-irradiance) implementation.
 
@@ -119,7 +119,7 @@ Global environment is a global probe which render pano and pack irradiance and r
 
 It use the same irradiance and radiance algorithm as other probes but with global settings define in render settings panel
 
-TODO: create custom blender objet rather using reflectance probe
+TODO: create custom blender objet rather using reflection probe
 It can be define through a blender radiance cubemap with Use as global probe environment option checked 
 
 #### Data structure
@@ -294,7 +294,7 @@ Rendered probes attributed are saved in a json file (probes.json) with a commmon
 
     // baked texture file names
     "irradiance_file": "Global probe_irradiance_packed.exr",
-    "reflectance_file": "Global probe_radiance_packed.exr",
+    "reflection_file": "Global probe_radiance_packed.exr",
     
     "baking": {
         // irradiance baking settings (same as irradiance volume baking settings)
@@ -303,7 +303,7 @@ Rendered probes attributed are saved in a json file (probes.json) with a commmon
             "max_texture_size": 960
         },
         // radiance baking settings (same as reflection volume baking settings)
-        "reflectance": {
+        "reflection": {
             "cubemap_face_size": 128,
             "max_texture_size": 1024,
             "start_roughness": 0.10000000149011612,

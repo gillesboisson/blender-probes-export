@@ -69,9 +69,8 @@ def pack_global_probe(context, prob_object=None):
             "cubemap_face_size": props.global_irradiance_bake_settings.map_size,
             "max_texture_size": props.global_irradiance_bake_settings.max_texture_size,
         },
-        "reflectance": {
+        "reflection": {
             "cubemap_face_size": props.global_reflection_bake_settings.map_size,
-            "max_texture_size": props.global_reflection_bake_settings.max_texture_size,
             "start_roughness": props.global_reflection_bake_settings.start_roughness,
             "level_roughness": props.global_reflection_bake_settings.level_roughness,
             "nb_levels": props.global_reflection_bake_settings.nb_levels,
@@ -85,7 +84,7 @@ def pack_global_probe(context, prob_object=None):
         "transform": data["transform"],
         "render": data["render"],
         "irradiance_file": final_irradiance_filename,
-        "reflectance_file": final_reflectance_filename,
+        "reflection_file": final_reflectance_filename,
         "data": {},
         "baking": baking_data,
         "baked_objects": data["baked_objects"],
