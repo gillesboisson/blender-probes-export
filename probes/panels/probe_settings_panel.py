@@ -1,5 +1,6 @@
 import bpy
 from bpy.types import Context
+from ..helpers.files import probe_is_cached
 from .common import (
     draw_irradiance_bake_settings,
     draw_render_settings,
@@ -145,6 +146,36 @@ class BAKE_GI_PT_probe_bake_global_settings(bpy.types.Panel):
             context, layout, context.scene.bake_gi.global_reflection_bake_settings
         )
 
+def draw_bake_volume_layout(context, col, bake_label = "Bake", clear_label = "Clear cache", display_progress = True):
+    data = context.object.data
+    bake_gi = data.bake_gi
+
+   
+
+    batch_renderer = Batch_renderer.get_default()
+
+    if batch_renderer.available():
+        
+
+        render_op_row = col.row(align=True)
+        render_op_row.split(factor=2)
+        render_op_row.scale_y = 1.5
+
+        if not bake_gi.is_global_probe:
+            if data.type == 'GRID':
+                render_op_row.operator('bake_gi.render_irradiance_probes', icon='RENDER_RESULT', text=bake_label)
+            elif data.type == 'CUBEMAP' :
+                render_op_row.operator('bake_gi.render_reflection_probes', icon='RENDER_RESULT', text=bake_label)
+        else:
+            render_op_row.operator('bake_gi.render_default_probes', icon='RENDER_RESULT', text=bake_label)
+        
+
+        if probe_is_cached(context.scene.bake_gi.export_directory_path, context.object.name):
+            render_op_row.operator('bake_gi.clear_probes_cache', icon='TRASH', text=clear_label)
+    elif display_progress:
+        row = col.row()
+        row.prop(context.scene.bake_gi, "batch_render_progress", text="Baking")
+        row.operator('bake_gi.cancel_render', icon='CANCEL', text="")
 
 class BAKE_GI_PT_probe_settings(bpy.types.Panel):
     bl_idname = "BAKE_GI_PT_probe_settings"
@@ -164,38 +195,15 @@ class BAKE_GI_PT_probe_settings(bpy.types.Panel):
 
     def draw(self, context):
         if is_export_enabled(context.object):
+            layout = self.layout
+            setup_panel_layout(context, self.layout)
+
             data = context.object.data
             bake_gi = data.bake_gi
-
-            layout = self.layout
-            setup_panel_layout(context, layout)
-
-
-            batch_renderer = Batch_renderer.get_default()
+            
             col = layout.column()
 
-            if batch_renderer.available():
-                
-
-                render_op_row = col.row(align=True)
-                render_op_row.split(factor=2)
-                render_op_row.scale_y = 1.5
-
-                if not bake_gi.is_global_probe:
-                    if data.type == 'GRID':
-                        render_op_row.operator('bake_gi.render_irradiance_probes', icon='RENDER_RESULT', text="Bake")
-                    elif data.type == 'CUBEMAP' :
-                        render_op_row.operator('bake_gi.render_reflection_probes', icon='RENDER_RESULT', text="Bake")
-                else:
-                    render_op_row.operator('bake_gi.render_default_probes', icon='RENDER_RESULT', text="Bake")
-                
-                render_op_row.separator_spacer()
-                render_op_row.operator('bake_gi.clear_probes_cache', icon='TRASH', text="Clear cache")
-            else:
-                row = col.row()
-                row.prop(context.scene.bake_gi, "batch_render_progress", text="Baking")
-                row.operator('bake_gi.cancel_render', icon='CANCEL', text="")
-
+            draw_bake_volume_layout(context, col)
             
             col.separator_spacer()
 
@@ -205,97 +213,10 @@ class BAKE_GI_PT_probe_settings(bpy.types.Panel):
             if not is_exportable_default_light_probe(context.object):
                 col.prop(bake_gi, "use_default_settings")
 
-            
-            
 
-        # layout = self.layout
-        # layout.use_property_split = True
-        # layout.use_property_decorate = False
-
-        # row = layout.row()
-
-        # # scene_settings = context.scene.bake_gi
-
-        # master_row = layout.column()
-        # master_row.active = prop.enable_export
-
-        # row = master_row.row()
-
-        # if data.type == 'CUBEMAP':
-        #     row.prop(prop, 'is_global_probe', text='Use as default probe')
-
-        # master_row.separator(factor=4)
-
-        # # global_props = context.scene.bake_gi
-
-        # if not prop.is_global_probe:
-        #     row = master_row.row(align=True)
-        #     col = row.column()
-        #     # col.operator('probe.render', icon='RENDER_RESULT')
-        #     if data.type == 'GRID':
-        #         col.operator('bake_gi.render_irradiance_probes', icon='RENDER_RESULT')
-        #         col = row.column()
-        #     elif data.type == 'CUBEMAP' :
-        #         col.operator('bake_gi.render_reflection_probes', icon='RENDER_RESULT')
-        #         col = row.column()
-
-        #     col.operator('bake_gi.clear_probes_cache', icon='TRASH')
-
-        #     master_row.separator(factor=2)
-
-        #     row = master_row.row()
-        #     row.prop(prop, 'use_default_settings')
-
-        #     master_row = layout.column()
-        #     master_row.active = prop.enable_export and not prop.use_default_settings
-
-        #     # if not prop.use_default_settings:
-        #     col = master_row.column()
-        #     col.prop(prop, 'map_size')
-        #     col.prop(prop, 'samples_max')
-
-        #     col.separator(factor=2)
-        #     col.prop(prop, 'export_map_size')
-        #     col.prop(prop, 'export_max_texture_size')
-
-        #     if data.type == 'CUBEMAP':
-        #         col = master_row.column()
-
-        #         col.prop(prop, 'export_nb_levels')
-        #         col.prop(prop, 'export_level_roughness')
-        #         col.prop(prop, 'export_start_roughness')
-
-        # else:
-
-        #     row = master_row.row(align=True)
-        #     col = row.column()
-        #     col.operator('bake_gi.render_default_probes', icon='RENDER_RESULT')
-
-        #     col = row.column()
-        #     col.operator('bake_gi.clear_probes_cache', icon='TRASH')
-
-        #     col = master_row.column()
-        #     col.separator(factor=2)
-
-        #     col.prop(global_props, 'global_map_size')
-        #     col.prop(global_props, 'global_samples_max')
-
-        #     col.separator(factor=2)
-        #     row = col.row()
-        #     row.label(text="Irradiance")
-
-        #     col.prop(global_props, 'global_irradiance_export_map_size', text = "Cubemap size")
-        #     col.prop(global_props, 'global_irradiance_max_texture_size', text = "Final texture max width")
-
-        #     col.separator(factor=2)
-        #     row = col.row()
-        #     row.label(text="Reflectance")
-        #     col.prop(global_props, 'global_reflectance_export_map_size', text = "Cubemap size")
-        #     col.prop(global_props, 'global_reflectance_max_texture_size', text = "Final texture max width")
-        #     col.prop(global_props, 'global_reflectance_nb_levels', text = "Levels amount")
-        #     col.prop(global_props, 'global_reflectance_start_roughness', text = "Start roughness")
-        #     col.prop(global_props, 'global_reflectance_level_roughness', text = "Roughness step")
         pass
+
+
 
 
 classes = (

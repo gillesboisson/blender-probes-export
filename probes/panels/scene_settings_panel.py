@@ -1,13 +1,52 @@
 import bpy
+from bpy.types import Context
+from ..helpers.files import probe_is_cached
+from ..helpers.poll import get_available_probe_volumes
 
 from .common import *
 from ..renderer.batch_renderer import Batch_renderer
 
 
+
+class BAKE_GI_PT_base_scene_volumes_list(bpy.types.Panel):
+
+    def draw(self, context: Context):
+        
+        layout = self.layout
+        col = layout.column()
+
+        volumes = get_available_probe_volumes(context)
+        row = col.grid_flow(columns=2, even_columns= False, even_rows=False, row_major=True)
+
+        for volume in volumes:
+            
+            [volume_object, volume_type, operator, is_cached] = volume
+
+            row.label(text=volume_object.name)
+
+            op_row = row.row(align=True)
+            render_op = op_row.operator(operator, icon="RENDER_RESULT", text="")
+
+            render_op.probe_volume_name = volume_object.name
+                
+            if probe_is_cached(context.scene.bake_gi.export_directory_path,  volume_object.name):
+                clear_cache_op = op_row.operator("bake_gi.clear_probes_cache", icon="TRASH", text="")
+                clear_cache_op.probe_volume_name = volume_object.name
+
+class BAKE_GI_PT_scene_volumes_list(BAKE_GI_PT_base_scene_volumes_list):
+    bl_idname = "BAKE_GI_PT_scene_volumes_list"
+    bl_parent_id = "BAKE_GI_PT_scene_settings"
+    bl_label = "Probe volumes"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "render"
+
+    pass
+
 class BAKE_GI_PT_scene_export_settings(bpy.types.Panel):
     bl_idname = "BAKE_GI_PT_scene_export_settings"
     bl_parent_id = "BAKE_GI_PT_scene_settings"
-    bl_label = "Export"
+    bl_label = "Export settings"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "render"
@@ -101,30 +140,6 @@ class BAKE_GI_PT_scene_irradiance_volume_default_settings(bpy.types.Panel):
             context.scene.bake_gi.global_irradiance_bake_settings,
         )
 
-        # col = layout.column()
-        # col.separator(factor=2)
-
-        # col.prop(props, 'global_map_size')
-        # col.prop(props, 'global_samples_max')
-
-        # col = layout.column()
-
-        # col.separator(factor=2)
-        # row = col.row()
-        # row.label(text="Irradiance")
-
-        # col.prop(props, 'global_irradiance_export_map_size', text = "Cubemap size")
-        # col.prop(props, 'global_irradiance_max_texture_size', text = "Max final texture size")
-
-        # col.separator(factor=2)
-        # row = col.row()
-        # row.label(text="Reflectance")
-        # col.prop(props, 'global_reflectance_export_map_size', text = "Cubemap size")
-        # col.prop(props, 'global_reflectance_max_texture_size', text = "Max final texture size")
-        # col.prop(props, 'global_reflectance_nb_levels', text = "Levels amount")
-        # col.prop(props, 'global_reflectance_level_roughness', text = "Roughness step")
-        # col.prop(props, 'global_reflectance_start_roughness', text = "Start roughness")
-
 
 class BAKE_GI_PT_scene_reflection_volume_default_settings(bpy.types.Panel):
     bl_idname = "BAKE_GI_PT_scene_reflection_volume_default_settings"
@@ -157,68 +172,36 @@ class BAKE_GI_PT_scene_reflection_volume_default_settings(bpy.types.Panel):
             context.scene.bake_gi.global_reflection_bake_settings,
         )
 
-        # scene = context.scene
-        # prop = scene.bake_gi
 
-        # layout = self.layout
-        # layout.use_property_split = True
-        # layout.use_property_decorate = False
+def draw_bake_all_layout(context, layout):
+    scene = context.scene
+    prop = scene.bake_gi
+    
+    batch_renderer = Batch_renderer.get_default()
+    col = layout.column()
+    
+    if batch_renderer.available():
+        render_op_row = col.row(align=True)
+        render_op_row.split(factor=2)
+        render_op_row.scale_y = 1.5
+        
+        render_all_op = render_op_row.operator("bake_gi.render_all_probes", icon="RENDER_RESULT", text="Bake probes")
+        render_op_row.operator(
+            "bake_gi.clear_all_probes_cache", icon="TRASH"
+        )
 
-        # col = layout.column()
-        # col.label(text="Render")
-        # layout.separator(factor=0.5)
-        # col = layout.column()
-        # col.prop(prop, "reflection_cubemap_default_map_size")
-        # col.prop(prop, "reflection_cubemap_default_samples_max")
-        # col.prop(prop, "reflection_cubemap_default_radiance_levels")
+        row = col.row(align=True)
+        row.use_property_split = False
+        row.use_property_decorate = False
+        row.prop(prop,"render_only_non_cached_probes")
 
-        # layout.separator(factor=2)
-        # col = layout.column()
-        # col.label(text="Export")
-        # layout.separator(factor=0.5)
-        # col = layout.column()
-        # col.prop(prop, "reflection_volume_default_export_map_size")
-        # col.prop(prop, "reflection_volume_default_export_max_texture_size")
-        # col.prop(prop, "reflection_volume_default_export_nb_levels")
-        # col.prop(prop, "reflection_volume_default_export_start_roughness")
-        # col.prop(prop, "reflection_volume_default_export_level_roughness")
-
-
-# class BAKE_GI_PT_scene_irradiance_probes_settings(bpy.types.Panel):
-#     bl_idname = "BAKE_GI_PT_scene_irradiance_probes_settings"
-#     bl_parent_id = "BAKE_GI_PT_scene_settings"
-#     bl_label = "Irradiance cubemaps"
-#     bl_space_type = "PROPERTIES"
-#     bl_region_type = "WINDOW"
-#     bl_context = "render"
-
-#     def draw(self, context):
-#         scene = context.scene
-#         prop = scene.bake_gi
-
-#         layout = self.layout
-#         layout.use_property_split = True
-#         layout.use_property_decorate = False
-
-#         col = layout.column()
-#         col.label(text="Render")
-#         layout.separator(factor=0.5)
-#         col = layout.column()
-#         col.prop(prop, "irradiance_volume_default_map_size")
-#         col.prop(prop, "irradiance_volume_default_samples_max")
-
-#         layout.separator(factor=2)
-#         col = layout.column()
-#         col.label(text="Export")
-#         layout.separator(factor=0.5)
-#         col = layout.column()
-#         col.prop(prop, "irradiance_volume_default_export_map_size")
-#         col.prop(prop, "irradiance_volume_default_export_max_texture_size")
-
-
+    else:
+        row = col.row()
+        row.prop(context.scene.bake_gi, "batch_render_progress", text="Baking")
+        row.operator('bake_gi.cancel_render', icon='CANCEL', text="")  
 class BAKE_GI_PT_scene_settings(bpy.types.Panel):
     bl_idname = "BAKE_GI_PT_scene_settings"
-    bl_label = "GI bake"
+    bl_label = "GI bake volumes"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "render"
@@ -228,34 +211,20 @@ class BAKE_GI_PT_scene_settings(bpy.types.Panel):
         return True
 
     def draw(self, context):
-        scene = context.scene
-        prop = scene.bake_gi
+        
 
         setup_panel_layout(context, self.layout)
         # col = row.column_flow(columns=2, align=True)
         
-        batch_renderer = Batch_renderer.get_default()
-        col = self.layout.column()
+        draw_bake_all_layout(context, self.layout)
         
-        if batch_renderer.available():
-            render_op_row = col.row(align=True)
-            render_op_row.split(factor=2)
-            render_op_row.scale_y = 1.5
-            
-            render_op_row.operator("bake_gi.render_all_probes", icon="RENDER_RESULT")
-            render_op_row.separator_spacer()
-            render_op_row.operator(
-                "bake_gi.clear_all_probes_cache", icon="TRASH"
-            )
-        else:
-            row = col.row()
-            row.prop(context.scene.bake_gi, "batch_render_progress", text="Baking")
-            row.operator('bake_gi.cancel_render', icon='CANCEL', text="")  
+        
         
 
 
 classes = (
     BAKE_GI_PT_scene_settings,
+    BAKE_GI_PT_scene_volumes_list,
     BAKE_GI_PT_scene_export_settings,
     BAKE_GI_PT_scene_default_volume_default_settings,
     BAKE_GI_PT_scene_reflection_volume_default_settings,

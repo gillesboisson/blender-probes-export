@@ -48,6 +48,13 @@ def render_cache_subdirectory_exists(export_directory, name):
     object_dir = get_render_cache_subdirectory(export_directory, name)
     return os.path.exists(object_dir)
 
+def probe_is_cached(export_directory, name):
+    return render_cache_subdirectory_exists(export_directory, name) and os.path.exists(
+        get_render_cache_subdirectory(export_directory, name)
+        + "/"
+        + probe_render_json_file
+    )
+
 
 def cubemap_filename(face_index, extension):
     return cube_map_face_names[face_index] + "." + extension

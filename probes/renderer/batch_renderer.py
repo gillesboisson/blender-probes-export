@@ -138,7 +138,7 @@ class Batch_renderer:
 
                 context.scene.bake_gi.batch_render_progress = floor(self.shot_index / self.nb_shots * 100)
                 self.set_render_state("RENDER_STARTED")
-                bpy.ops.render.render("INVOKE_DEFAULT", write_still=True)
+                bpy.ops.render.render("INVOKE_DEFAULT", animation=False, write_still=True)
             else:
                 
                 if self.__render_state == "RENDER_COMPLETE":
