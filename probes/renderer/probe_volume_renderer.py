@@ -184,15 +184,7 @@ class Default_probe_volume_renderer(Probe_volume_renderer):
                 "cycle_samples_min": self.samples_min,
                 "cycle_time_limit": self.time_limit,
             },
-            # "data": {
-            #     # "irradiance_export_map_size": props.global_irradiance_export_map_size,
-            #     # "irradiance_max_texture_size": props.global_irradiance_max_texture_size,
-            #     # "reflectance_export_map_size": props.global_reflectance_export_map_size,
-            #     # "reflectance_max_texture_size": props.global_reflectance_max_texture_size,
-            #     # "reflectance_nb_levels": props.global_reflectance_nb_levels,
-            #     # "reflectance_start_roughness": props.global_reflectance_start_roughness,
-            #     # "reflectance_level_roughness": props.global_reflectance_level_roughness,
-            # },
+           
             "file": global_pano_filename(self.probe_volume.name, self.file_extension),
             "baked_objects": get_scene_renderered_object_names(context),
         }
@@ -268,6 +260,7 @@ class Irradiance_probe_volume_renderer(Probe_volume_renderer):
                     self.probe_volume.data.grid_resolution_z,
                     self.probe_volume.data.grid_resolution_y,
                 ],
+                "intensity": self.probe_volume.data.intensity,
                 "influence_distance": self.probe_volume.data.influence_distance,
                 "falloff": self.probe_volume.data.falloff,
             },
@@ -373,6 +366,7 @@ class Reflection_probe_volume_renderer(Probe_volume_renderer):
                 "intensity": self.probe_volume.data.intensity,
                 "influence_type": self.probe_volume.data.influence_type,
                 "influence_distance": self.probe_volume.data.influence_distance,
+                "influence_type": self.probe_volume.data.influence_type,
             },
             "render": {
                 "clip_start": self.probe_volume.data.clip_start,

@@ -66,11 +66,11 @@ def pack_global_probe(context, prob_object=None):
 
     baking_data = {
         "irradiance": {
-            "cubemap_size": props.global_irradiance_bake_settings.map_size,
+            "cubemap_face_size": props.global_irradiance_bake_settings.map_size,
             "max_texture_size": props.global_irradiance_bake_settings.max_texture_size,
         },
         "reflectance": {
-            "cubemap_size": props.global_reflection_bake_settings.map_size,
+            "cubemap_face_size": props.global_reflection_bake_settings.map_size,
             "max_texture_size": props.global_reflection_bake_settings.max_texture_size,
             "start_roughness": props.global_reflection_bake_settings.start_roughness,
             "level_roughness": props.global_reflection_bake_settings.level_roughness,
@@ -86,15 +86,12 @@ def pack_global_probe(context, prob_object=None):
         "render": data["render"],
         "irradiance_file": final_irradiance_filename,
         "reflectance_file": final_reflectance_filename,
+        "data": {},
         "baking": baking_data,
         "baked_objects": data["baked_objects"],
     }
-
-    if hasattr(data, "data"):
-        final_data["data"] = data["data"]
-
-
-    save_probe_json_pack_data(export_directory, name, data)
+    
+    save_probe_json_pack_data(export_directory, name, final_data)
     probe_names = get_context_probes_names(context)
     save_scene_json_pack_data(export_directory, probe_names)
     return data

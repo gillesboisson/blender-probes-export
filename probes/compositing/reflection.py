@@ -129,8 +129,7 @@ def pack_reflectance_probe(context, prob_object=None):
     )
 
     baking_data = {
-        "cubemap_size": final_settings.map_size,
-        "max_texture_size": final_settings.max_texture_size,
+        "cubemap_face_size": final_settings.map_size,
         "start_roughness": final_settings.start_roughness,
         "level_roughness": final_settings.level_roughness,
         "nb_levels": final_settings.nb_levels,
@@ -141,13 +140,12 @@ def pack_reflectance_probe(context, prob_object=None):
         "probe_type": data["probe_type"],
         "transform": data["transform"],
         "render": data["render"],
+        "data": data["data"],
         "file" : filename,
         "baking": baking_data,
         "baked_objects": data["baked_objects"],
     }
     
-    if hasattr(data, "data"):
-        final_data["data"] = data["data"]
 
     save_probe_json_pack_data(export_directory, name, final_data)
     probe_names = get_context_probes_names(context)

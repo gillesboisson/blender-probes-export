@@ -63,24 +63,24 @@ Scene probes data are exported in a folder defined by user, in scene probes expo
 
 - export_directory
     - probes.json
-    - reflection_1_packed.png
-    - irradiance_2_packed.png
-    - global_pano.hdr
+    - reflection_1_packed.exr
+    - irradiance_2_packed.exr
+    - Global_probe.exr
     - probes.json
     - __render_cache                    : cache folder for rendered / packed probes
         - reflection_1                  : per probe folder
-            - 0_0_0.png                 
-            - 1_0_0.png                 
+            - 0_0_0.exr                 
+            - 1_0_0.exr                 
             - ...
             - packed_probe.json         : packed probe data (use as cache data)
             - rendered_probe.json       : rendered probe data (use as cache data)
 
         - irradiance_2                  : per probe folder
-            - pano.png                  : per probe equirectangle is baked
+            - pano.exr                  : per probe equirectangle is baked
             - packed_probe.json         : (use as cache data)
             - rendered_probe.json       : (use as cache data)
-        - Global probe                  : fix name
-            - global_pano.hdr           : renderer panorama
+        - Global_probe                  : fix name
+            - Global probe.exr           : renderer panorama
             - packed_probe.json         : (use as cache data)
             - rendered_probe.json       : (use as cache data)
             
@@ -117,7 +117,7 @@ Final packed data is saved in a image file with all roughness level
 
 Global environment is a global probe which render pano and pack irradiance and radiance data in separate files.
 
-It use the same irradiance and radiance algorithm as other probes but with global settings define in scene or global settings panel
+It use the same irradiance and radiance algorithm as other probes but with global settings define in render settings panel
 
 TODO: create custom blender objet rather using reflectance probe
 It can be define through a blender radiance cubemap with Use as global probe environment option checked 
@@ -127,156 +127,194 @@ It can be define through a blender radiance cubemap with Use as global probe env
 Scene probes data are exported as JSON and includes all probes attributes and a link to data texture
 Rendered probes attributed are saved in a json file (probes.json) with a commmon main structure and sub data property with specific probe type based settings
 
+
+**Structure**
+
 ```json
-[
-    // Global
-     {
-        "name": "Default probe",
-        "type": "global",
+
+{
+    // Common settings ======================================================================
+    "name": "Global probe",
+    "probe_type": "global", // global | irradiance | reflection
+    "transform": {
         "position": [
             0.0,
             5.0,
             -0.0
-        ],
-        "clip_start": 0.800000011920929,
-        "clip_end": 80.0,
-        "data": {
-            "map_size": 512,
-            "samples_max": 128,
-            "irradiance_export_map_size": 64,
-            "irradiance_max_texture_size": 2048,
-            "reflectance_export_map_size": 256,
-            "reflectance_max_texture_size": 2048,
-            "reflectance_nb_levels": 3,
-            "reflectance_start_roughness": 0.0,
-            "reflectance_level_roughness": 0.25
-        },
-        "baked_objects": [
-            "pillar NE",
-            "pillar SE",
-            "pillar SW",
-            "pillar NW"
-        ],
-        "irradiance_file": "Global probe_irradiance_packed.png",
-        "reflectance_file": "Global probe.png"
-    },
-    // Irradiance
-    {
-        "name": "IrradianceVolume N",
-        "file": "IrradianceVolume N_packed.png",
-        "cubemap_size": 64,
-        "texture_size": 2048,
-        "type": "irradiance",
-        "position": [
-            0.0,
-            5.0,
-            -7.051239490509033
-        ],
-        "scale": [
-            14.094822883605957,
-            6.012429237365723,
-            6.948479175567627
-        ],
-        "rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "clip_start": 0.0010000000474974513,
-        "clip_end": 20.0,
-        "baked_objects": [
-            "east-wall",
-            "floor",
-            "north-int-wall",
-            "north-wall",
-            "south-int-wall",
-            "south-wall",
-            "west-cube.001",
-            "west-cube.002",
-            "Suzanne",
-            "Suzanne.001",
-            "Suzanne.002",
-            "Suzanne.003",
-            "west--wall",
-            "west-cube",
-            "pillar NE",
-            "pillar SE",
-            "pillar SW",
-            "pillar NW"
-        ],
-        "data": {
-            "falloff": 1.0,
-            "resolution": [
-                4,
-                2,
-                2
-            ],
-            "influence_distance": 0.20000004768371582
-        }
-    },
-
-    // Radiance
-    {
-        "name": "ReflectionCubemap N",
-        "file": "ReflectionCubemap N_packed.png",
-        "cubemap_size": 256,
-        "texture_size": 2048,
-        "type": "reflection",
-        "position": [
-            0.0,
-            5.0,
-            -8.0
         ],
         "scale": [
             1.0,
             1.0,
             1.0
         ],
-        "rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "baked_objects": [
-            "east-wall",
-            "floor",
-            "north-int-wall",
-            "north-wall",
-            "south-int-wall",
-            "south-wall",
-            "west-cube.001",
-            "west-cube.002",
-            "Suzanne",
-            "Suzanne.001",
-            "Suzanne.002",
-            "Suzanne.003",
-            "west--wall",
-            "west-cube",
-            "pillar NE",
-            "pillar SE",
-            "pillar SW",
-            "pillar NW"
-        ],
+        "rotation": [   // euler rotation
+            0,
+            0,
+            0
+        ]
+    },
+
+    // Render settings
+    "render": {
         "clip_start": 0.800000011920929,
-        "clip_end": 20.0,
-        "data": {
-            "start_roughness": 0.05000000074505806,
-            "level_roughness": 0.800000011920929,
-            "end_roughness": 3.250000048428774,
-            "nb_levels": 4,
-            "scale": [
-                1.0,
-                1.0,
-                1.0
-            ],
-            "falloff": 0.3314814865589142,
-            "influence_distance": 9.0,
-            "intensity": 1.0,
-            "influence_type": "ELIPSOID"
+        "clip_end": 80.0,
+        "map_size": 128,    // height of panorama (width is 2 * height)
+
+        // specific blender cyvle settings
+        "cycle_samples_max": 32,
+        "cycle_samples_min": 1,
+        "cycle_time_limit": 5
+    },
+
+    // names of objects rendered in probes
+    "baked_objects": [
+        "pillar NE",
+        "pillar SE",
+        "pillar SW",
+        "pillar NW"
+    ],
+    // Specific settings ======================================================================
+    "baking":{}, // probe volume compositing settings 
+    "data":{} // probe data exported settings
+},
+
+```
+
+**Reflection**
+
+```json
+{
+    "name": "ReflectionCubemap S",
+    "probe_type": "reflection",
+    "transform": {
+       // ...
+    },
+    "render": {
+        // ...
+    },
+    "baked_objects": [
+       // ...
+    ],
+
+    "data": {
+        
+        // Influence type "BOX" | "ELLIPSOID"
+        "influence_type": "BOX",
+
+        // Influence distance
+        "influence_distance": 0.30000007152557373,
+        
+        // Volume falloff distance
+        "falloff": 1.0,
+
+        // Probe intensity (relative to overlayed volumes)
+        "intensity": 1.0,
+    },
+    "file": "ReflectionCubemap S_packed.exr",
+    "baking": {
+
+        // cubemap face size : 
+        //   reflection baked texture has 4 face on first row and 2 faces on second row
+        //   sub level mipmaps are packed in bottom right corner of texture
+        //   final texture width is 4 x cubemap_face_size
+        //   final texture height is 2 x cubemap_face_size
+        "cubemap_face_size": 128, 
+
+        // roughness level settings (eg. 4 levels with 0.1 start roughness and 0.2 roughness increment > 0.1, 0.3, 0.5, 0.7 )
+        "start_roughness": 0.1,
+        "level_roughness": 0.2,
+        "nb_levels": 4
+    }
+}
+```
+
+**Irradiance**
+```json
+{
+    "name": "IrradianceVolume H",
+    "probe_type": "irradiance",
+    "transform": {
+        // ...
+    },
+    "render": {
+        // ...
+    },
+    "baked_objects": [
+        // ...
+    ],
+
+    // baked texture file name
+    "file": "IrradianceVolume H_packed.exr",
+    "data": {
+        // grid resolution
+        "resolution": [
+            2,
+            2,
+            2
+        ],
+
+        // Influence distance
+        "influence_distance": 0.30000007152557373,
+        
+        // Volume falloff distance
+        "falloff": 1.0,
+
+        // Probe intensity (relative to overlayed volumes)
+        "intensity": 1.0,
+    },
+    "baking": {
+        // baked cubemap facesize 
+        "cubemap_face_size": 128,
+
+        // baked texture max width 
+        // based on irradiance texture layout cubemap faces are packed in one row of 6 faces : 6 x cubemap_face_size (eg. 128 * 6 = 768)
+        // max_texture_size has to be a multiple of cubemap_face_size x 6 (eg. 128 x 6 x 2 = 1536 > 2 cubes per rows)
+        "max_texture_size": 1536
+    },
+    
+}
+```
+
+
+**Global**
+```json
+{
+    "name": "Global probe",
+    "probe_type": "global",
+    "transform": {
+        // ...
+    },
+    "render": {
+        // ...
+    },
+    "data": {},
+    "baked_objects": [
+    // ...
+    ],
+
+    // baked texture file names
+    "irradiance_file": "Global probe_irradiance_packed.exr",
+    "reflectance_file": "Global probe_radiance_packed.exr",
+    
+    "baking": {
+        // irradiance baking settings (same as irradiance volume baking settings)
+        "irradiance": {
+            "cubemap_face_size": 32,
+            "max_texture_size": 960
+        },
+        // radiance baking settings (same as reflection volume baking settings)
+        "reflectance": {
+            "cubemap_face_size": 128,
+            "max_texture_size": 1024,
+            "start_roughness": 0.10000000149011612,
+            "level_roughness": 0.20000000298023224,
+            "nb_levels": 1
         }
     },
-]
+}
 ```
+
+
 
 
 
@@ -316,7 +354,7 @@ This plugin is in its development phase, here is the list of milestones ordered 
     - [ ] Common data schema for probes and lightmap
 
 - [ ] Back burner features 
-    - [ ] Improve UI,Asynchronous rendering, probes cache handling 
+    - [x] Improve UI,Asynchronous rendering, probes cache handling 
     - [ ] Blender headless python command
     - [ ] Support of other data kind using blender bake system (eg. Ambiant occlusion)
 

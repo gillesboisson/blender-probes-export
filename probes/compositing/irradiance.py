@@ -70,7 +70,7 @@ def pack_irradiance_probe(context, prob_object=None):
     )
 
     baking_data = {
-        "cubemap_size": final_settings.map_size,
+        "cubemap_face_size": final_settings.map_size,
         "max_texture_size": final_settings.max_texture_size,
     }
 
@@ -80,14 +80,11 @@ def pack_irradiance_probe(context, prob_object=None):
         "transform": data["transform"],
         "render": data["render"],
         "file" : filename,
+        "data": data["data"],
         "baking": baking_data,
         "baked_objects": data["baked_objects"],
     }
     
-    if hasattr(data, "data"):
-        final_data["data"] = data["data"]
-
-
     save_probe_json_pack_data(export_directory, name, final_data)
     probe_names = get_context_probes_names(context)
     save_scene_json_pack_data(export_directory, probe_names)
